@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"strings"
 )
@@ -25,7 +25,7 @@ func CreateNewDataFile() error {
 		return err
 	}
 
-	err = ioutil.WriteFile("data.json", file, 0644) //nolint:gosec
+	err = os.WriteFile("data.json", file, 0644) //nolint:gosec
 	if err != nil {
 		return err
 	}
@@ -58,10 +58,27 @@ func (d Data) SaveFile() error {
 		return err
 	}
 
-	err = ioutil.WriteFile("data.json", file, 0644) //nolint:gosec
+	err = os.WriteFile("data.json", file, 0644) //nolint:gosec
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func OpenFile() Data {
+	file, err := os.Open("data.json")
+	if err != nil {
+		fmt.Println(err)
+	}
+	byteValue, err := io.ReadAll(file)
+	if err != nil {
+		fmt.Println(err)
+	}
+	data := Data{}
+	err = json.Unmarshal(byteValue, &data)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return data
 }

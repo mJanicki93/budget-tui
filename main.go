@@ -1,6 +1,6 @@
 package main
 
-import "budgetcli/cmd"
+import "budgettui/cmd"
 
 func main() {
 	cmd.Execute()
