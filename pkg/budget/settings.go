@@ -3,5 +3,6 @@ package budget
 import "time"
 
 type Settings struct {
-	FirstDay time.Time
+	FirstDay        time.Time
+	DefaultCurrency string
 }
