@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func GetOutcomeForm(data budget.Data, accountID uint, pages *tview.Pages, pageName string) *tview.Form {
+func GetOutcomeForm(data budget.Data, accountID uint, pages *tview.Pages, pageName string, mainMenu *tview.List, accountFrame *tview.Frame, app *tview.Application) *tview.Form {
 	accountNames := func() []string {
 		var accountNamesList []string
 		for _, account := range data.Budgets[data.CurrentBudgetID].Accounts {
@@ -51,7 +51,7 @@ func GetOutcomeForm(data budget.Data, accountID uint, pages *tview.Pages, pageNa
 		budget.CommitTransaction(expanse, uint(i))
 
 		//Actions
-
+		LoadMenu(mainMenu, accountFrame, app, pages)
 		pages.HidePage(pageName)
 		pages.ShowPage("main")
 	}).AddButton("Quit", func() {
@@ -70,7 +70,7 @@ func GetOutcomeForm(data budget.Data, accountID uint, pages *tview.Pages, pageNa
 	return form
 }
 
-func GetIncomeForm(data budget.Data, accountID uint, pages *tview.Pages, pageName string) *tview.Form {
+func GetIncomeForm(data budget.Data, accountID uint, pages *tview.Pages, pageName string, mainMenu *tview.List, accountFrame *tview.Frame, app *tview.Application) *tview.Form {
 	accountNames := func() []string {
 		var accountNamesList []string
 		for _, account := range data.Budgets[data.CurrentBudgetID].Accounts {
@@ -113,7 +113,7 @@ func GetIncomeForm(data budget.Data, accountID uint, pages *tview.Pages, pageNam
 		budget.CommitTransaction(income, uint(i))
 
 		//Actions
-
+		LoadMenu(mainMenu, accountFrame, app, pages)
 		pages.HidePage(pageName)
 		pages.ShowPage("main")
 	}).AddButton("Quit", func() {
@@ -132,7 +132,7 @@ func GetIncomeForm(data budget.Data, accountID uint, pages *tview.Pages, pageNam
 	return form
 }
 
-func GetTransferForm(data budget.Data, pages *tview.Pages) *tview.Form {
+func GetTransferForm(data budget.Data, pages *tview.Pages, mainMenu *tview.List, accountFrame *tview.Frame, app *tview.Application) *tview.Form {
 	accountNames := func() []string {
 		var accountNamesList []string
 		for _, account := range data.Budgets[data.CurrentBudgetID].Accounts {
@@ -185,7 +185,7 @@ func GetTransferForm(data budget.Data, pages *tview.Pages) *tview.Form {
 		budget.CommitTransaction(income, uint(toID))
 
 		//Actions
-
+		LoadMenu(mainMenu, accountFrame, app, pages)
 		pages.HidePage("transferForm")
 		pages.ShowPage("main")
 	}).AddButton("Quit", func() {

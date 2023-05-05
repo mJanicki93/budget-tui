@@ -21,7 +21,7 @@ func Home(data budget.Data) {
 
 	newAccount := NewCreateAccountForm(data, pages, menu, account, app)
 
-	transferForm := GetTransferForm(data, pages)
+	transferForm := GetTransferForm(data, pages, menu, account, app)
 
 	helpInfo.SetBorder(true)
 	helpInfo.

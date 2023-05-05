@@ -9,15 +9,15 @@ import (
 	"time"
 )
 
-func GetAccountList(d budget.Data, app *tview.Application, mainMenu *tview.List, pages *tview.Pages) map[uint]*tview.Grid {
+func GetAccountList(d budget.Data, app *tview.Application, mainMenu *tview.List, pages *tview.Pages, accountFrame *tview.Frame) map[uint]*tview.Grid {
 	gridList := map[uint]*tview.Grid{}
 	accounts := d.Budgets[d.CurrentBudgetID].Accounts
 
 	for _, account := range accounts {
 		//Buttons
 		pageName := fmt.Sprintf("outcomeForm%v", account.Name)
-		outcomeForm := GetOutcomeForm(d, account.ID, pages, pageName)
-		incomeForm := GetIncomeForm(d, account.ID, pages, pageName)
+		outcomeForm := GetOutcomeForm(d, account.ID, pages, pageName, mainMenu, accountFrame, app)
+		incomeForm := GetIncomeForm(d, account.ID, pages, pageName, mainMenu, accountFrame, app)
 
 		outcome := tview.NewButton("OUT").SetSelectedFunc(func() {
 			pages.AddPage(pageName, tview.NewGrid().
