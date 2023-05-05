@@ -15,7 +15,7 @@ var rootCmd = &cobra.Command{
 -planning on every month
 -managing debts`,
 	Run: func(cmd *cobra.Command, args []string) {
-		tui.Home()
+		tui.RunApp()
 	},
 }
 

@@ -1,8 +1,6 @@
 package budget
 
-import "time"
-
 type Settings struct {
-	FirstDay        time.Time
+	FirstDay        uint
 	DefaultCurrency string
 }

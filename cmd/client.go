@@ -26,7 +26,7 @@ var versionCmd = &cobra.Command{
 				fmt.Println(err)
 				return
 			}
-			data := budget.OpenFile()
+			data, _ := budget.OpenFile()
 			fmt.Println("Please create new budget")
 			data.CreateNewBudget()
 			return

@@ -3,9 +3,9 @@ package budget
 import "time"
 
 type Transaction struct {
-	ID       uint
-	Name     string
-	Amount   float32
-	Category string
-	Date     time.Time
+	ID          uint
+	Description string
+	Amount      float64
+	Category    string
+	Date        time.Time
 }

@@ -66,19 +66,20 @@ func (d Data) SaveFile() error {
 	return nil
 }
 
-func OpenFile() Data {
+func OpenFile() (Data, error) {
+	data := Data{}
 	file, err := os.Open("data.json")
 	if err != nil {
-		fmt.Println(err)
+		return data, err
 	}
 	byteValue, err := io.ReadAll(file)
 	if err != nil {
-		fmt.Println(err)
+		return data, err
 	}
-	data := Data{}
+
 	err = json.Unmarshal(byteValue, &data)
 	if err != nil {
-		fmt.Println(err)
+		return data, err
 	}
-	return data
+	return data, nil
 }

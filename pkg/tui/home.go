@@ -2,26 +2,24 @@ package tui
 
 import (
 	"budgettui/pkg/budget"
-	"fmt"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
-func Home() {
+func Home(data budget.Data) {
 	app := tview.NewApplication()
 
-	debug := true
-
-	data := budget.OpenFile()
-
-	accountList := GetAccountList(data)
-	debugWindow := tview.NewTextView().SetText(fmt.Sprintf("%v", accountList))
-
+	//Creating all views
 	pages := tview.NewPages()
 	menu := tview.NewList()
 	budgetInfo := tview.NewTextView()
-	account := tview.NewFrame(accountList[0])
+	account := tview.NewFrame(tview.NewGrid())
 	helpInfo := tview.NewTextView()
+	help := GetHelpWindow(pages)
+
+	newBudget := NewCreateBudgetForm(data, pages)
+
+	newAccount := NewCreateAccountForm(data, pages, menu, account, app)
 
 	helpInfo.SetBorder(true)
 	helpInfo.
@@ -31,46 +29,34 @@ func Home() {
 	budgetInfo.
 		SetText(data.Budgets[data.CurrentBudgetID].Name)
 
-	account.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyESC {
-			app.SetFocus(menu)
+	account.SetBorder(true)
+	LoadMenu(menu, account, app, pages)
+
+	mainView := GetMainView(helpInfo, menu, account, budgetInfo)
+
+	pages.AddAndSwitchToPage("main", mainView, true).
+		AddPage("help", tview.NewGrid().
+			SetColumns(0, 64, 0).
+			SetRows(0, 22, 0).
+			AddItem(help, 1, 1, 1, 1, 0, 0, true), true, false).
+		AddPage("createBudget", tview.NewGrid().
+			SetColumns(0, 58, 0).
+			SetRows(0, 12, 0).
+			AddItem(newBudget, 1, 1, 1, 1, 0, 0, true), true, false).
+		AddPage("createAccount", tview.NewGrid().
+			SetColumns(0, 58, 0).
+			SetRows(0, 13, 0).
+			AddItem(newAccount, 1, 1, 1, 1, 0, 0, true), true, false)
+
+	SetInputs(app, pages)
+
+	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyCtrlR {
+			LoadMenu(menu, account, app, pages)
 			return nil
 		}
 		return event
 	})
-	account.SetBorder(true)
-	for i, accountOb := range data.Budgets[data.CurrentBudgetID].Accounts {
-		var singleRune rune
-		for _, char := range fmt.Sprintf("%v", i) {
-			singleRune = char
-		}
-		accountToDisplay := accountList[accountOb.ID]
-		menu.AddItem(accountOb.Name, accountOb.Currency, singleRune, func() {
-
-			account.SetPrimitive(accountToDisplay)
-
-			debugWindow.SetText(fmt.Sprintf("i: %v, account: %v", i, accountOb))
-			app.SetFocus(account)
-		})
-	}
-	menu.
-		AddItem("Quit", "Press to exit", 'q', func() {
-			app.Stop()
-		})
-
-	mainView := tview.NewGrid().
-		SetRows(3, 0, 3).
-		SetColumns(30, 0).
-		AddItem(helpInfo, 2, 0, 1, 2, 0, 0, false).
-		AddItem(menu, 1, 0, 1, 1, 0, 0, true).
-		AddItem(account, 1, 1, 1, 1, 0, 0, false).
-		AddItem(budgetInfo, 0, 0, 1, 2, 0, 0, false)
-
-	if debug {
-		mainView.SetRows(3, 0, 3, 10)
-		mainView.AddItem(debugWindow, 3, 0, 1, 2, 0, 0, false)
-	}
-	pages.AddAndSwitchToPage("main", mainView, true)
 
 	if err := app.SetRoot(pages,
 		true).EnableMouse(true).Run(); err != nil {
