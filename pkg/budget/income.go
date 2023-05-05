@@ -25,5 +25,10 @@ func (e Income) NewTransaction(accountID uint) {
 		Date:        e.Date,
 	})
 	_ = data.SaveFile()
+}
 
+func (e Income) UpdateAccount(accountID uint) {
+	data, _ := OpenFile()
+	data.Budgets[data.CurrentBudgetID].Accounts[accountID].Balance = data.Budgets[data.CurrentBudgetID].Accounts[accountID].Balance + e.Amount
+	_ = data.SaveFile()
 }

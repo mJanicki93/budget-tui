@@ -33,7 +33,7 @@ func LoadMenu(menu *tview.List, account *tview.Frame, app *tview.Application, pa
 	accountList := GetAccountList(data, app, menu, pages)
 	for i, accountOb := range data.Budgets[data.CurrentBudgetID].Accounts {
 		var singleRune rune
-		for _, char := range fmt.Sprintf("%v", i) {
+		for _, char := range fmt.Sprintf("%v", i+1) {
 			singleRune = char
 		}
 		accountToDisplay := accountList[accountOb.ID]

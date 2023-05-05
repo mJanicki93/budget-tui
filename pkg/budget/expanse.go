@@ -27,6 +27,12 @@ func (e Expanse) NewTransaction(accountID uint) {
 
 }
 
+func (e Expanse) UpdateAccount(accountID uint) {
+	data, _ := OpenFile()
+	data.Budgets[data.CurrentBudgetID].Accounts[accountID].Balance = data.Budgets[data.CurrentBudgetID].Accounts[accountID].Balance - e.Amount
+	_ = data.SaveFile()
+}
+
 func (e Expanse) Plan(name string, amount float32, date time.Time) {
 
 }

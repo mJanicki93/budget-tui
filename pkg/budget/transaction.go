@@ -9,3 +9,13 @@ type Transaction struct {
 	Category    string
 	Date        time.Time
 }
+
+type transactions interface {
+	NewTransaction(accountID uint)
+	UpdateAccount(accountID uint)
+}
+
+func CommitTransaction(t transactions, id uint) {
+	t.NewTransaction(id)
+	t.UpdateAccount(id)
+}

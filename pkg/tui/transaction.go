@@ -48,7 +48,7 @@ func GetOutcomeForm(data budget.Data, accountID uint, pages *tview.Pages, pageNa
 			Date:        time.Now(),
 		}
 
-		expanse.NewTransaction(uint(i))
+		budget.CommitTransaction(expanse, uint(i))
 
 		//Actions
 
@@ -110,7 +110,7 @@ func GetIncomeForm(data budget.Data, accountID uint, pages *tview.Pages, pageNam
 			Date:        time.Now(),
 		}
 
-		income.NewTransaction(uint(i))
+		budget.CommitTransaction(income, uint(i))
 
 		//Actions
 
@@ -124,6 +124,78 @@ func GetIncomeForm(data budget.Data, accountID uint, pages *tview.Pages, pageNam
 	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyESC {
 			pages.HidePage(pageName)
+			pages.ShowPage("main")
+		}
+		return event
+	})
+
+	return form
+}
+
+func GetTransferForm(data budget.Data, pages *tview.Pages) *tview.Form {
+	accountNames := func() []string {
+		var accountNamesList []string
+		for _, account := range data.Budgets[data.CurrentBudgetID].Accounts {
+			accountNamesList = append(accountNamesList, account.Name)
+		}
+		return accountNamesList
+	}
+
+	form := tview.NewForm().
+		AddInputField(Description, "", 20, nil, nil).
+		AddDropDown(Category, []string{"", "Home"}, 0, nil).
+		AddInputField(Amount, "", 20, func(textToCheck string, lastChar rune) bool {
+			intValue, err := strconv.ParseFloat(textToCheck, 64)
+			if err != nil {
+				return false
+			}
+			if intValue < 1 {
+				return false
+			}
+			return true
+		}, nil).
+		AddDropDown("From", accountNames(), 0, nil).
+		AddDropDown("To", accountNames(), 0, nil)
+
+	form.SetBorder(true).SetTitle("Outcome").SetTitleAlign(tview.AlignLeft).SetBorderColor(tcell.ColorDarkRed)
+	form.AddButton("Save", func() {
+		//Get form values
+		amount, _ := strconv.ParseFloat(form.GetFormItemByLabel(Amount).(*tview.InputField).GetText(), 64)
+		description := form.GetFormItemByLabel(Description).(*tview.InputField).GetText()
+		_, category := form.GetFormItemByLabel(Category).(*tview.DropDown).GetCurrentOption()
+		fromID, _ := form.GetFormItemByLabel("From").(*tview.DropDown).GetCurrentOption()
+		toID, _ := form.GetFormItemByLabel("To").(*tview.DropDown).GetCurrentOption()
+
+		//Add budget entity
+		expanse := budget.Expanse{
+			Description: description,
+			Amount:      amount,
+			Category:    category,
+			Date:        time.Now(),
+		}
+
+		income := budget.Income{
+			Description: description,
+			Amount:      amount,
+			Category:    category,
+			Date:        time.Now(),
+		}
+
+		budget.CommitTransaction(expanse, uint(fromID))
+		budget.CommitTransaction(income, uint(toID))
+
+		//Actions
+
+		pages.HidePage("transferForm")
+		pages.ShowPage("main")
+	}).AddButton("Quit", func() {
+		pages.HidePage("transferForm")
+		pages.ShowPage("main")
+	})
+
+	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyESC {
+			pages.HidePage("transferForm")
 			pages.ShowPage("main")
 		}
 		return event
