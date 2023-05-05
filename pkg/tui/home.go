@@ -51,7 +51,7 @@ func Home(data budget.Data) {
 			AddItem(newAccount, 1, 1, 1, 1, 0, 0, true), true, false).
 		AddPage("transferForm", tview.NewGrid().
 			SetColumns(0, 58, 0).
-			SetRows(0, 13, 0).
+			SetRows(0, 15, 0).
 			AddItem(transferForm, 1, 1, 1, 1, 0, 0, true), true, false)
 
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {

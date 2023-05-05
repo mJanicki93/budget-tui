@@ -31,6 +31,14 @@ func LoadMenu(menu *tview.List, account *tview.Frame, app *tview.Application, pa
 	menu.Clear()
 	data, _ := budget.OpenFile()
 	accountList := GetAccountList(data, app, menu, pages, account)
+	budgetPage := tview.NewGrid().AddItem(tview.NewTextView().SetText("BUDGET"), 0, 0, 1, 1, 0, 0, false)
+	account.SetPrimitive(budgetPage)
+	menu.
+		//TODO Add budget page
+		AddItem("Budget", "", '0', func() {
+			account.SetPrimitive(budgetPage)
+			app.Stop()
+		})
 	for i, accountOb := range data.Budgets[data.CurrentBudgetID].Accounts {
 		var singleRune rune
 		for _, char := range fmt.Sprintf("%v", i+1) {
