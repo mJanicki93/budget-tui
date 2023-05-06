@@ -28,23 +28,29 @@ func RunApp() {
 }
 
 func LoadMenu(menu *tview.List, account *tview.Frame, app *tview.Application, pages *tview.Pages) {
+	currentItem := menu.GetCurrentItem()
+
 	menu.Clear()
 	data, _ := budget.OpenFile()
 	accountList := GetAccountList(data, app, menu, pages, account)
 	budgetPage := tview.NewGrid().AddItem(tview.NewTextView().SetText("BUDGET"), 0, 0, 1, 1, 0, 0, false)
-	account.SetPrimitive(budgetPage)
+	var currentPrimitive tview.Primitive = budgetPage
 	menu.
 		//TODO Add budget page
 		AddItem("Budget", "", '0', func() {
 			account.SetPrimitive(budgetPage)
-			app.Stop()
 		})
+
 	for i, accountOb := range data.Budgets[data.CurrentBudgetID].Accounts {
 		var singleRune rune
 		for _, char := range fmt.Sprintf("%v", i+1) {
 			singleRune = char
 		}
+
 		accountToDisplay := accountList[accountOb.ID]
+		if i+1 == currentItem {
+			currentPrimitive = accountToDisplay
+		}
 		menu.AddItem(accountOb.Name, fmt.Sprintf("%v %v", accountOb.Balance, accountOb.Currency), singleRune, func() {
 
 			account.SetPrimitive(accountToDisplay)
@@ -67,6 +73,9 @@ func LoadMenu(menu *tview.List, account *tview.Frame, app *tview.Application, pa
 		}
 		return event
 	})
+
+	menu.SetCurrentItem(currentItem)
+	account.SetPrimitive(currentPrimitive)
 
 }
 

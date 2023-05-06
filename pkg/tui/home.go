@@ -22,6 +22,8 @@ func Home(data budget.Data) {
 	newAccount := NewCreateAccountForm(data, pages, menu, account, app)
 
 	transferForm := GetTransferForm(data, pages, menu, account, app)
+	quickOutcomeForm := GetQuickOutcomeForm(pages, menu, account, app)
+	quickIncomeForm := GetQuickIncomeForm(pages, menu, account, app)
 
 	helpInfo.SetBorder(true)
 	helpInfo.
@@ -32,6 +34,7 @@ func Home(data budget.Data) {
 		SetText(data.Budgets[data.CurrentBudgetID].Name)
 
 	account.SetBorder(true)
+
 	LoadMenu(menu, account, app, pages)
 
 	mainView := GetMainView(helpInfo, menu, account, budgetInfo)
@@ -52,7 +55,15 @@ func Home(data budget.Data) {
 		AddPage("transferForm", tview.NewGrid().
 			SetColumns(0, 58, 0).
 			SetRows(0, 15, 0).
-			AddItem(transferForm, 1, 1, 1, 1, 0, 0, true), true, false)
+			AddItem(transferForm, 1, 1, 1, 1, 0, 0, true), true, false).
+		AddPage("quickOutcome", tview.NewGrid().
+			SetColumns(0, 30, 0).
+			SetRows(0, 9, 0).
+			AddItem(quickOutcomeForm, 1, 1, 1, 1, 0, 0, true), true, false).
+		AddPage("quickIncome", tview.NewGrid().
+			SetColumns(0, 30, 0).
+			SetRows(0, 9, 0).
+			AddItem(quickIncomeForm, 1, 1, 1, 1, 0, 0, true), true, false)
 
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyCtrlR {
@@ -73,6 +84,14 @@ func Home(data budget.Data) {
 		}
 		if event.Key() == tcell.KeyCtrlT {
 			pages.ShowPage("transferForm")
+			return nil
+		}
+		if event.Key() == tcell.KeyCtrlJ {
+			pages.ShowPage("quickIncome")
+			return nil
+		}
+		if event.Key() == tcell.KeyCtrlO {
+			pages.ShowPage("quickOutcome")
 			return nil
 		}
 		return event

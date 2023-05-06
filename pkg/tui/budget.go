@@ -73,7 +73,7 @@ func NewCreateBudgetForm(data budget.Data, pages *tview.Pages) *tview.Form {
 	})
 
 	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyESC {
+		if event.Key() == tcell.KeyEscape {
 			pages.HidePage("createBudget")
 			pages.ShowPage("main")
 		}

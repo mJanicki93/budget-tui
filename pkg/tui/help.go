@@ -14,10 +14,10 @@ func GetHelpWindow(pages *tview.Pages) *tview.Frame {
 [yellow]Right arrow[white]: Move right.
 [yellow]Down arrow[white]: Move down.
 [yellow]Up arrow[white]: Move up.
-[yellow]Ctrl-A, Account[white]: Create new account.
-[yellow]Ctrl-B, Budget[white]: Create new budget.
-[yellow]Ctrl-T, Transfer[white]: Make transfer.
-[yellow]Ctrl-R, Reload[white]: Reload data.
+[yellow]Ctrl-A[white]: Create new account.
+[yellow]Ctrl-B[white]: Create new budget.
+[yellow]Ctrl-T[white]: Make transfer.
+[yellow]Ctrl-R[white]: Reload data.
 
 [blue]Press Enter for more help, press Escape to return.`)
 	help2 := tview.NewTextView().
