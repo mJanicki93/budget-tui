@@ -60,7 +60,7 @@ func GetOutcomeForm(data budget.Data, accountID uint, pages *tview.Pages, pageNa
 	})
 
 	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyESC {
+		if event.Key() == tcell.KeyEscape {
 			pages.HidePage(pageName)
 			pages.ShowPage("main")
 		}
@@ -122,8 +122,112 @@ func GetIncomeForm(data budget.Data, accountID uint, pages *tview.Pages, pageNam
 	})
 
 	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyESC {
+		if event.Key() == tcell.KeyEscape {
 			pages.HidePage(pageName)
+			pages.ShowPage("main")
+		}
+		return event
+	})
+
+	return form
+}
+
+func GetQuickOutcomeForm(pages *tview.Pages, mainMenu *tview.List, accountFrame *tview.Frame, app *tview.Application) *tview.Form {
+	form := tview.NewForm().
+		AddInputField(Description, "", 20, nil, nil).
+		AddInputField(Amount, "", 20, func(textToCheck string, lastChar rune) bool {
+			intValue, err := strconv.ParseFloat(textToCheck, 64)
+			if err != nil {
+				return false
+			}
+			if intValue < 1 {
+				return false
+			}
+			return true
+		}, nil)
+
+	form.SetBorder(true).SetTitle("Outcome").SetTitleAlign(tview.AlignLeft).SetBorderColor(tcell.ColorDarkRed)
+	form.AddButton("Save", func() {
+		amount, _ := strconv.ParseFloat(form.GetFormItemByLabel(Amount).(*tview.InputField).GetText(), 64)
+		description := form.GetFormItemByLabel(Description).(*tview.InputField).GetText()
+
+		//Add budget entity
+		expanse := budget.Expanse{
+			Description: description,
+			Amount:      amount,
+			Category:    "",
+			Date:        time.Now(),
+		}
+
+		budget.CommitTransaction(expanse, 0)
+
+		//Actions
+		LoadMenu(mainMenu, accountFrame, app, pages)
+		form.GetFormItemByLabel(Amount).(*tview.InputField).SetText("")
+		form.GetFormItemByLabel(Description).(*tview.InputField).SetText("")
+		form.SetFocus(0)
+		pages.HidePage("quickOutcome")
+		pages.ShowPage("main")
+	})
+	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyEscape {
+			form.GetFormItemByLabel(Amount).(*tview.InputField).SetText("")
+			form.GetFormItemByLabel(Description).(*tview.InputField).SetText("")
+			form.SetFocus(0)
+			pages.HidePage("quickOutcome")
+			pages.ShowPage("main")
+		}
+		return event
+	})
+
+	return form
+}
+
+func GetQuickIncomeForm(pages *tview.Pages, mainMenu *tview.List, accountFrame *tview.Frame, app *tview.Application) *tview.Form {
+	form := tview.NewForm().
+		AddInputField(Description, "", 20, nil, nil).
+		AddInputField(Amount, "", 20, func(textToCheck string, lastChar rune) bool {
+			intValue, err := strconv.ParseFloat(textToCheck, 64)
+			if err != nil {
+				return false
+			}
+			if intValue < 1 {
+				return false
+			}
+			return true
+		}, nil)
+
+	form.SetBorder(true).SetTitle("Income").SetTitleAlign(tview.AlignLeft).SetBorderColor(tcell.ColorDarkGreen)
+	form.AddButton("Save", func() {
+		//Get form values
+		amount, _ := strconv.ParseFloat(form.GetFormItemByLabel(Amount).(*tview.InputField).GetText(), 64)
+		description := form.GetFormItemByLabel(Description).(*tview.InputField).GetText()
+
+		//Add budget entity
+		income := budget.Income{
+			Description: description,
+			Amount:      amount,
+			Category:    "",
+			Date:        time.Now(),
+		}
+
+		budget.CommitTransaction(income, 0)
+
+		//Actions
+		LoadMenu(mainMenu, accountFrame, app, pages)
+		form.GetFormItemByLabel(Amount).(*tview.InputField).SetText("")
+		form.GetFormItemByLabel(Description).(*tview.InputField).SetText("")
+		form.SetFocus(0)
+		pages.HidePage("quickIncome")
+		pages.ShowPage("main")
+	})
+
+	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyEscape {
+			form.GetFormItemByLabel(Amount).(*tview.InputField).SetText("")
+			form.GetFormItemByLabel(Description).(*tview.InputField).SetText("")
+			form.SetFocus(0)
+			pages.HidePage("quickIncome")
 			pages.ShowPage("main")
 		}
 		return event
@@ -194,7 +298,7 @@ func GetTransferForm(data budget.Data, pages *tview.Pages, mainMenu *tview.List,
 	})
 
 	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyESC {
+		if event.Key() == tcell.KeyEscape {
 			pages.HidePage("transferForm")
 			pages.ShowPage("main")
 		}

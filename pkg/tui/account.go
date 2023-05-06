@@ -57,28 +57,32 @@ func GetAccountList(d budget.Data, app *tview.Application, mainMenu *tview.List,
 		})
 
 		acccountName := tview.NewTextView().SetText(account.Name)
+
+		headers := tview.NewTable().SetBorders(true)
+		headers.
+			SetCell(0, 0, tview.NewTableCell(fmt.Sprintf("%-3.3s", "ID")).SetBackgroundColor(tcell.ColorDarkGrey)).
+			SetCell(0, 1, tview.NewTableCell(fmt.Sprintf("%-20.20s", Description)).SetBackgroundColor(tcell.ColorDarkGrey)).
+			SetCell(0, 2, tview.NewTableCell(fmt.Sprintf("%-15.15s", Amount)).SetBackgroundColor(tcell.ColorDarkGrey)).
+			SetCell(0, 3, tview.NewTableCell(fmt.Sprintf("%-10.10s", Category)).SetBackgroundColor(tcell.ColorDarkGrey)).
+			SetCell(0, 4, tview.NewTableCell(fmt.Sprintf("%-10.10s", "Date")).SetBackgroundColor(tcell.ColorDarkGrey))
+
 		transactions := tview.NewTable().SetBorders(true)
-		transactions.
-			SetCell(0, 0, tview.NewTableCell("ID")).
-			SetCell(0, 1, tview.NewTableCell(Description)).
-			SetCell(0, 2, tview.NewTableCell(Amount)).
-			SetCell(0, 3, tview.NewTableCell(Category)).
-			SetCell(0, 4, tview.NewTableCell("Date"))
 		for i, t := range d.Budgets[d.CurrentBudgetID].Accounts[account.ID].Transactions {
 			transactions.
-				SetCell(i+1, 0, tview.NewTableCell(strconv.Itoa(int(t.ID)))).
-				SetCell(i+1, 1, tview.NewTableCell(t.Description)).
-				SetCell(i+1, 2, tview.NewTableCell(fmt.Sprintf("%.2f", t.Amount))).
-				SetCell(i+1, 3, tview.NewTableCell(t.Category)).
-				SetCell(i+1, 4, tview.NewTableCell(t.Date.Format(time.DateOnly)))
+				SetCell(i, 0, tview.NewTableCell(fmt.Sprintf("%-3.3s", strconv.Itoa(int(t.ID))))).
+				SetCell(i, 1, tview.NewTableCell(fmt.Sprintf("%-20.20s", t.Description))).
+				SetCell(i, 2, tview.NewTableCell(fmt.Sprintf("%-15.15s", fmt.Sprintf("%.2f", t.Amount)))).
+				SetCell(i, 3, tview.NewTableCell(fmt.Sprintf("%-10.10s", t.Category))).
+				SetCell(i, 4, tview.NewTableCell(fmt.Sprintf("%-10.10s", t.Date.Format(time.DateOnly))))
 		}
-
+		transactions.ScrollToEnd()
 		accountGrid := tview.NewGrid().
-			SetRows(1, 1, 0).
+			SetRows(1, 2, 3, 0).
 			SetColumns(0, 0).
 			AddItem(acccountName, 0, 0, 1, 7, 0, 0, false).
 			AddItem(menu, 1, 0, 1, 2, 0, 0, true).
-			AddItem(transactions, 2, 0, 1, 7, 0, 0, false)
+			AddItem(headers, 2, 0, 1, 4, 0, 0, true).
+			AddItem(transactions, 3, 0, 1, 4, 0, 0, false)
 		gridList[account.ID] = accountGrid
 	}
 
@@ -147,11 +151,12 @@ func NewCreateAccountForm(data budget.Data, pages *tview.Pages, menu *tview.List
 		pages.ShowPage("main")
 	}).
 		AddButton("Quit", func() {
-			app.Stop()
+			pages.HidePage("createAccount")
+			pages.ShowPage("main")
 		})
 
 	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyESC {
+		if event.Key() == tcell.KeyEscape {
 			pages.HidePage("createAccount")
 			pages.ShowPage("main")
 		}
