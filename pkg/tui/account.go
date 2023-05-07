@@ -55,21 +55,25 @@ func NewCreateAccountForm(ctx budget.Context) *tview.Form {
 		_, currency := form.GetFormItemByLabel(Currency).(*tview.DropDown).GetCurrentOption()
 		initialAmount, _ := strconv.ParseFloat(form.GetFormItemByLabel(InitialAmount).(*tview.InputField).GetText(), 64)
 		useInBudget := form.GetFormItemByLabel(UseInBudget).(*tview.Checkbox).IsChecked()
+		if accountName != "" && currency != "" && form.GetFormItemByLabel(InitialAmount).(*tview.InputField).GetText() != "" {
+			//Add detailsFrame entity
+			data.Budgets[data.CurrentBudgetID].Accounts = append(data.Budgets[data.CurrentBudgetID].Accounts, budget.Account{
+				ID:          uint(len(data.Budgets[data.CurrentBudgetID].Accounts)),
+				Name:        accountName,
+				Currency:    currency,
+				Balance:     initialAmount,
+				UseInBudget: useInBudget,
+			})
 
-		//Add detailsFrame entity
-		data.Budgets[data.CurrentBudgetID].Accounts = append(data.Budgets[data.CurrentBudgetID].Accounts, budget.Account{
-			ID:          uint(len(data.Budgets[data.CurrentBudgetID].Accounts)),
-			Name:        accountName,
-			Currency:    currency,
-			Balance:     initialAmount,
-			UseInBudget: useInBudget,
-		})
+			//Actions
+			_ = data.SaveFile()
+			LoadAppData(ctx)
+			pages.HidePage("createAccount")
+			pages.ShowPage("main")
+		} else {
+			ShowPopup("Fill required fields", Alert, ctx)
+		}
 
-		//Actions
-		_ = data.SaveFile()
-		LoadAppData(ctx)
-		pages.HidePage("createAccount")
-		pages.ShowPage("main")
 	}).
 		AddButton("Quit", func() {
 			pages.HidePage("createAccount")

@@ -1,5 +1,6 @@
 package tui
 
+// Labels
 const Currency = "Currency"
 const DefaultCurrency = "Default currency"
 const Name = "Name"
@@ -11,6 +12,7 @@ const Amount = "Amount"
 const Description = "Description"
 const Category = "Category"
 
+// Elements
 const App = "app"
 const Pages = "pages"
 const Menu = "menu"
@@ -24,3 +26,9 @@ const NewAccountForm = "newAccountForm"
 const TransferForm = "transferForm"
 const QuickIncomeForm = "quickIncomeForm"
 const QuickOutcomeForm = "quickOutComeForm"
+
+// Styles
+const Alert = "alert"
+const Info = "info"
+const Success = "success"
+const Regular = "regular"

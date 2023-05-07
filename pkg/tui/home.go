@@ -72,6 +72,10 @@ func Home(data budget.Data) {
 			pages.ShowPage("quickOutcome")
 			return nil
 		}
+		if event.Key() == tcell.KeyCtrlC {
+			ShowPopupQuit(Alert, ctx)
+			return nil
+		}
 		return event
 	})
 

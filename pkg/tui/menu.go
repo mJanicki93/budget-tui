@@ -43,13 +43,13 @@ func LoadAppMenu(ctx budget.Context) {
 	}
 	menu.
 		AddItem("Budget settings", "", 'b', func() {
-			app.Stop()
+			ShowPopup("Not ready", "alert", ctx)
 		}).
 		AddItem("Change budget", "", 'c', func() {
 			app.Stop()
 		}).
 		AddItem("Quit", "", 'q', func() {
-			app.Stop()
+			ShowPopupQuit(Alert, ctx)
 		})
 	menu.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyRight {

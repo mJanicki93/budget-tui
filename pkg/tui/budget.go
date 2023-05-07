@@ -53,23 +53,28 @@ func NewCreateBudgetForm(ctx budget.Context) *tview.Form {
 		budgetName := form.GetFormItemByLabel(Name).(*tview.InputField).GetText()
 		_, defaultCurrency := form.GetFormItemByLabel(DefaultCurrency).(*tview.DropDown).GetCurrentOption()
 
-		//Add budget entity
-		data.Budgets = append(data.Budgets, budget.Budget{
-			ID:   uint(len(data.Budgets)),
-			Name: budgetName,
-			Settings: budget.Settings{
-				DefaultCurrency: defaultCurrency,
-				FirstDay:        uint(firstDayInt),
-			},
-			CreatedAt: time.Now(),
-		})
-		data.CurrentBudgetID = uint(len(data.Budgets)) - 1
+		if budgetName != "" && form.GetFormItemByLabel(FirstDayOfMonth).(*tview.InputField).GetText() != "" && defaultCurrency == "" {
+			//Add budget entity
+			data.Budgets = append(data.Budgets, budget.Budget{
+				ID:   uint(len(data.Budgets)),
+				Name: budgetName,
+				Settings: budget.Settings{
+					DefaultCurrency: defaultCurrency,
+					FirstDay:        uint(firstDayInt),
+				},
+				CreatedAt: time.Now(),
+			})
+			data.CurrentBudgetID = uint(len(data.Budgets)) - 1
 
-		//Actions
-		_ = data.SaveFile()
+			//Actions
+			_ = data.SaveFile()
 
-		pages.HidePage("createBudget")
-		pages.ShowPage("main")
+			pages.HidePage("createBudget")
+			pages.ShowPage("main")
+		} else {
+			ShowPopup("Fill required fields", Alert, ctx)
+		}
+
 	}).AddButton("Quit", func() {
 		pages.HidePage("createBudget")
 		pages.ShowPage("main")
