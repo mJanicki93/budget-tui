@@ -1,11 +1,14 @@
 package tui
 
 import (
+	"budgettui/pkg/budget"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
-func GetHelpWindow(pages *tview.Pages) *tview.Frame {
+func GetHelpWindow(ctx budget.Context) *tview.Frame {
+	pages := ctx[Pages].(*tview.Pages)
+
 	help1 := tview.NewTextView().
 		SetDynamicColors(true).
 		SetText(`[green]Navigation

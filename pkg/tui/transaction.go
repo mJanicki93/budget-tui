@@ -8,7 +8,11 @@ import (
 	"time"
 )
 
-func GetOutcomeForm(data budget.Data, accountID uint, pages *tview.Pages, pageName string, mainMenu *tview.List, accountFrame *tview.Frame, app *tview.Application) *tview.Form {
+func GetOutcomeForm(accountID uint, pageName string, ctx budget.Context) *tview.Form {
+	data, _ := budget.LoadJSONData()
+
+	pages := ctx[Pages].(*tview.Pages)
+
 	accountNames := func() []string {
 		var accountNamesList []string
 		for _, account := range data.Budgets[data.CurrentBudgetID].Accounts {
@@ -51,7 +55,7 @@ func GetOutcomeForm(data budget.Data, accountID uint, pages *tview.Pages, pageNa
 		budget.CommitTransaction(expanse, uint(i))
 
 		//Actions
-		LoadMenu(mainMenu, accountFrame, app, pages)
+		LoadAppData(ctx)
 		pages.HidePage(pageName)
 		pages.ShowPage("main")
 	}).AddButton("Quit", func() {
@@ -70,7 +74,11 @@ func GetOutcomeForm(data budget.Data, accountID uint, pages *tview.Pages, pageNa
 	return form
 }
 
-func GetIncomeForm(data budget.Data, accountID uint, pages *tview.Pages, pageName string, mainMenu *tview.List, accountFrame *tview.Frame, app *tview.Application) *tview.Form {
+func GetIncomeForm(accountID uint, pageName string, ctx budget.Context) *tview.Form {
+	data, _ := budget.LoadJSONData()
+
+	pages := ctx[Pages].(*tview.Pages)
+
 	accountNames := func() []string {
 		var accountNamesList []string
 		for _, account := range data.Budgets[data.CurrentBudgetID].Accounts {
@@ -113,7 +121,7 @@ func GetIncomeForm(data budget.Data, accountID uint, pages *tview.Pages, pageNam
 		budget.CommitTransaction(income, uint(i))
 
 		//Actions
-		LoadMenu(mainMenu, accountFrame, app, pages)
+		LoadAppData(ctx)
 		pages.HidePage(pageName)
 		pages.ShowPage("main")
 	}).AddButton("Quit", func() {
@@ -132,7 +140,8 @@ func GetIncomeForm(data budget.Data, accountID uint, pages *tview.Pages, pageNam
 	return form
 }
 
-func GetQuickOutcomeForm(pages *tview.Pages, mainMenu *tview.List, accountFrame *tview.Frame, app *tview.Application) *tview.Form {
+func GetQuickOutcomeForm(ctx budget.Context) *tview.Form {
+	pages := ctx[Pages].(*tview.Pages)
 	form := tview.NewForm().
 		AddInputField(Description, "", 20, nil, nil).
 		AddInputField(Amount, "", 20, func(textToCheck string, lastChar rune) bool {
@@ -162,7 +171,7 @@ func GetQuickOutcomeForm(pages *tview.Pages, mainMenu *tview.List, accountFrame 
 		budget.CommitTransaction(expanse, 0)
 
 		//Actions
-		LoadMenu(mainMenu, accountFrame, app, pages)
+		LoadAppData(ctx)
 		form.GetFormItemByLabel(Amount).(*tview.InputField).SetText("")
 		form.GetFormItemByLabel(Description).(*tview.InputField).SetText("")
 		form.SetFocus(0)
@@ -183,7 +192,8 @@ func GetQuickOutcomeForm(pages *tview.Pages, mainMenu *tview.List, accountFrame 
 	return form
 }
 
-func GetQuickIncomeForm(pages *tview.Pages, mainMenu *tview.List, accountFrame *tview.Frame, app *tview.Application) *tview.Form {
+func GetQuickIncomeForm(ctx budget.Context) *tview.Form {
+	pages := ctx[Pages].(*tview.Pages)
 	form := tview.NewForm().
 		AddInputField(Description, "", 20, nil, nil).
 		AddInputField(Amount, "", 20, func(textToCheck string, lastChar rune) bool {
@@ -214,7 +224,7 @@ func GetQuickIncomeForm(pages *tview.Pages, mainMenu *tview.List, accountFrame *
 		budget.CommitTransaction(income, 0)
 
 		//Actions
-		LoadMenu(mainMenu, accountFrame, app, pages)
+		LoadAppData(ctx)
 		form.GetFormItemByLabel(Amount).(*tview.InputField).SetText("")
 		form.GetFormItemByLabel(Description).(*tview.InputField).SetText("")
 		form.SetFocus(0)
@@ -236,7 +246,10 @@ func GetQuickIncomeForm(pages *tview.Pages, mainMenu *tview.List, accountFrame *
 	return form
 }
 
-func GetTransferForm(data budget.Data, pages *tview.Pages, mainMenu *tview.List, accountFrame *tview.Frame, app *tview.Application) *tview.Form {
+func GetTransferForm(ctx budget.Context) *tview.Form {
+	data, _ := budget.LoadJSONData()
+	pages := ctx[Pages].(*tview.Pages)
+
 	accountNames := func() []string {
 		var accountNamesList []string
 		for _, account := range data.Budgets[data.CurrentBudgetID].Accounts {
@@ -289,7 +302,7 @@ func GetTransferForm(data budget.Data, pages *tview.Pages, mainMenu *tview.List,
 		budget.CommitTransaction(income, uint(toID))
 
 		//Actions
-		LoadMenu(mainMenu, accountFrame, app, pages)
+		LoadAppData(ctx)
 		pages.HidePage("transferForm")
 		pages.ShowPage("main")
 	}).AddButton("Quit", func() {
