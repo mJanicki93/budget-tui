@@ -6,7 +6,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-func Home(data budget.Data) {
+func Home() {
 	ctx := budget.NewContext()
 	app := tview.NewApplication()
 
@@ -41,11 +41,11 @@ func Home(data budget.Data) {
 		QuickIncomeForm:  quickIncomeForm,
 	})
 
-	LoadAppData(ctx)
+	LoadAppElements(ctx)
 
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyCtrlR {
-			LoadAppData(ctx)
+			LoadAppElements(ctx)
 			pages.ShowPage("main")
 		}
 		if event.Key() == tcell.KeyF1 {

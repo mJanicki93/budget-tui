@@ -11,7 +11,6 @@ import (
 
 func GetOutcomeForm(accountID uint, pageName string, ctx budget.Context) *tview.Form {
 	data, _ := budget.LoadJSONData()
-
 	pages := ctx[Pages].(*tview.Pages)
 
 	accountNames := func() []string {
@@ -55,7 +54,7 @@ func GetOutcomeForm(accountID uint, pageName string, ctx budget.Context) *tview.
 			}
 			budget.CommitTransaction(expanse, uint(i))
 			//Actions
-			LoadAppData(ctx)
+			LoadAppElements(ctx)
 			pages.HidePage(pageName)
 			pages.ShowPage("main")
 		} else {
@@ -126,9 +125,10 @@ func GetIncomeForm(accountID uint, pageName string, ctx budget.Context) *tview.F
 			budget.CommitTransaction(income, uint(i))
 
 			//Actions
-			LoadAppData(ctx)
+			LoadAppElements(ctx)
 			pages.HidePage(pageName)
 			pages.ShowPage("main")
+
 		} else {
 			ShowPopup("Fill required fields", Alert, ctx)
 		}
@@ -136,6 +136,7 @@ func GetIncomeForm(accountID uint, pageName string, ctx budget.Context) *tview.F
 	}).AddButton("Quit", func() {
 		pages.HidePage(pageName)
 		pages.ShowPage("main")
+
 	})
 
 	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
@@ -180,7 +181,7 @@ func GetQuickOutcomeForm(ctx budget.Context) *tview.Form {
 			budget.CommitTransaction(expanse, 0)
 
 			//Actions
-			LoadAppData(ctx)
+			LoadAppElements(ctx)
 			form.GetFormItemByLabel(Amount).(*tview.InputField).SetText("")
 			form.GetFormItemByLabel(Description).(*tview.InputField).SetText("")
 			form.SetFocus(0)
@@ -238,7 +239,7 @@ func GetQuickIncomeForm(ctx budget.Context) *tview.Form {
 			budget.CommitTransaction(income, 0)
 
 			//Actions
-			LoadAppData(ctx)
+			LoadAppElements(ctx)
 			form.GetFormItemByLabel(Amount).(*tview.InputField).SetText("")
 			form.GetFormItemByLabel(Description).(*tview.InputField).SetText("")
 			form.SetFocus(0)
@@ -303,14 +304,14 @@ func GetTransferForm(ctx budget.Context) *tview.Form {
 
 		if description != "" && form.GetFormItemByLabel(Amount).(*tview.InputField).GetText() != "" && fromID != toID {
 			expanse := budget.Expanse{
-				Description: fmt.Sprintf("(To:%s)%s", toName, description),
+				Description: fmt.Sprintf("%s (%s)", description, toName),
 				Amount:      amount,
 				Category:    category,
 				Date:        time.Now(),
 			}
 
 			income := budget.Income{
-				Description: fmt.Sprintf("(From:%s)%s", fromName, description),
+				Description: fmt.Sprintf("%s (%s)", description, fromName),
 				Amount:      amount,
 				Category:    category,
 				Date:        time.Now(),
@@ -320,7 +321,7 @@ func GetTransferForm(ctx budget.Context) *tview.Form {
 			budget.CommitTransaction(income, uint(toID))
 
 			//Actions
-			LoadAppData(ctx)
+			LoadAppElements(ctx)
 			pages.HidePage("transferForm")
 			pages.ShowPage("main")
 		} else if fromID == toID {
@@ -346,7 +347,7 @@ func GetTransferForm(ctx budget.Context) *tview.Form {
 	return form
 }
 
-func GetTransactionForm(accountID int, transactionID int, pageName string, ctx budget.Context) *tview.Form {
+func GetTransactionForm(accountID uint, transactionID uint, pageName string, ctx budget.Context) *tview.Form {
 	data, _ := budget.LoadJSONData()
 
 	pages := ctx[Pages].(*tview.Pages)
@@ -384,9 +385,9 @@ func GetTransactionForm(accountID int, transactionID int, pageName string, ctx b
 				Amount:      amount,
 				Category:    category,
 			}
-			budget.EditTransaction(accountID, newTransaction)
+			budget.EditTransaction(uint(accountID), newTransaction)
 			//Actions
-			LoadAppData(ctx)
+			LoadAppElements(ctx)
 			pages.HidePage(pageName)
 			pages.ShowPage("main")
 		} else {

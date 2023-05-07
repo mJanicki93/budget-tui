@@ -7,15 +7,14 @@ import (
 
 func RunApp() {
 
-	data, err := budget.LoadJSONData()
+	_, err := budget.LoadJSONData()
 	if err != nil {
 		Init()
-		data, _ = budget.LoadJSONData()
 	}
-	Home(data)
+	Home()
 }
 
-func LoadAppData(ctx budget.Context) {
+func LoadAppElements(ctx budget.Context) {
 	data, _ := budget.LoadJSONData()
 
 	pages := ctx[Pages].(*tview.Pages)

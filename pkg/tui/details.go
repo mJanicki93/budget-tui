@@ -12,28 +12,31 @@ import (
 func GetDetailsFrames(ctx budget.Context) map[uint]*tview.Grid {
 	d, _ := budget.LoadJSONData()
 
-	//app := ctx[App].(*tview.Application)
-	//mainMenu := ctx[Menu].(*tview.List)
+	app := ctx[App].(*tview.Application)
+	mainMenu := ctx[Menu].(*tview.List)
 	pages := ctx[Pages].(*tview.Pages)
 
 	gridList := map[uint]*tview.Grid{}
 	accounts := d.Budgets[d.CurrentBudgetID].Accounts
-	transactions := tview.NewTable().SetBorders(true)
 
 	for _, account := range accounts {
 		//Buttons
+		outcome := tview.NewButton("OUT")
+		income := tview.NewButton("IN")
 		pageName := fmt.Sprintf("outcomeForm%v", account.Name)
 		outcomeForm := GetOutcomeForm(account.ID, pageName, ctx)
 		incomeForm := GetIncomeForm(account.ID, pageName, ctx)
+		transactions := tview.NewTable().SetBorders(false)
+		transactions.SetTitle(fmt.Sprintf("%v", account.ID))
 
-		outcome := tview.NewButton("OUT").SetSelectedFunc(func() {
+		outcome.SetSelectedFunc(func() {
 			pages.AddPage(pageName, tview.NewGrid().
 				SetColumns(0, 58, 0).
 				SetRows(0, 13, 0).
 				AddItem(outcomeForm, 1, 1, 1, 1, 0, 0, true), true, false)
 			pages.ShowPage(pageName)
 		})
-		income := tview.NewButton("IN").SetSelectedFunc(func() {
+		income.SetSelectedFunc(func() {
 			pages.AddPage(pageName, tview.NewGrid().
 				SetColumns(0, 58, 0).
 				SetRows(0, 13, 0).
@@ -48,27 +51,27 @@ func GetDetailsFrames(ctx budget.Context) map[uint]*tview.Grid {
 			AddItem(income, 0, 3, 1, 1, 0, 0, false)
 
 		outcome.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-			//if event.Key() == tcell.KeyRight {
-			//	app.SetFocus(income)
-			//}
-			//if event.Key() == tcell.KeyLeft {
-			//	app.SetFocus(mainMenu)
-			//}
-			//if event.Key() == tcell.KeyDown {
-			//	app.SetFocus(transactions)
-			//}
+			if event.Key() == tcell.KeyTab {
+				app.SetFocus(income)
+			}
+			if event.Key() == tcell.KeyEscape {
+				app.SetFocus(mainMenu)
+			}
 			return event
 		})
 		income.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-			//if event.Key() == tcell.KeyLeft {
-			//	app.SetFocus(outcome)
-			//}
+			if event.Key() == tcell.KeyTab {
+				app.SetFocus(transactions)
+			}
+			if event.Key() == tcell.KeyEscape {
+				app.SetFocus(mainMenu)
+			}
 			return event
 		})
 
 		acccountName := tview.NewTextView().SetText(account.Name)
 
-		headers := tview.NewTable().SetBorders(true)
+		headers := tview.NewTable().SetBorders(false)
 		headers.
 			SetCell(0, 0, tview.NewTableCell(fmt.Sprintf("%-3.3s", "ID")).SetBackgroundColor(tcell.ColorDarkGrey)).
 			SetCell(0, 1, tview.NewTableCell(fmt.Sprintf("%-30.30s", Description)).SetBackgroundColor(tcell.ColorDarkGrey)).
@@ -86,15 +89,25 @@ func GetDetailsFrames(ctx budget.Context) map[uint]*tview.Grid {
 		}
 		transactions.ScrollToEnd()
 		transactions.SetSelectedFunc(func(row, column int) {
-			transactionForm := GetTransactionForm(int(account.ID), row, pageName, ctx)
+			transactionsID, _ := strconv.Atoi(transactions.GetTitle())
+			transactionForm := GetTransactionForm(uint(transactionsID), uint(row), pageName, ctx)
 			pages.AddPage(pageName, tview.NewGrid().
 				SetColumns(0, 58, 0).
 				SetRows(0, 13, 0).
 				AddItem(transactionForm, 1, 1, 1, 1, 0, 0, true), true, false)
 			pages.ShowPage(pageName)
 		})
+		transactions.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+			if event.Key() == tcell.KeyTab {
+				app.SetFocus(outcome)
+			}
+			if event.Key() == tcell.KeyEscape {
+				app.SetFocus(mainMenu)
+			}
+			return event
+		})
 		accountGrid := tview.NewGrid().
-			SetRows(1, 2, 3, 0).
+			SetRows(1, 2, 1, 0).
 			SetColumns(0, 0).
 			AddItem(acccountName, 0, 0, 1, 7, 0, 0, false).
 			AddItem(menu, 1, 0, 1, 2, 0, 0, true).

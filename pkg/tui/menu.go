@@ -37,8 +37,8 @@ func LoadAppMenu(ctx budget.Context) {
 			currentPrimitive = accountToDisplay
 		}
 		menu.AddItem(accountOb.Name, fmt.Sprintf("%v %v", accountOb.Balance, accountOb.Currency), singleRune, func() {
-
 			detailsFrame.SetPrimitive(accountToDisplay)
+			app.SetFocus(accountToDisplay)
 		})
 	}
 	menu.

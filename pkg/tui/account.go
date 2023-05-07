@@ -67,7 +67,7 @@ func NewCreateAccountForm(ctx budget.Context) *tview.Form {
 
 			//Actions
 			_ = data.SaveFile()
-			LoadAppData(ctx)
+			LoadAppElements(ctx)
 			pages.HidePage("createAccount")
 			pages.ShowPage("main")
 		} else {
