@@ -28,7 +28,10 @@ func NewCreateBudgetFormInit() *tview.Form {
 	return form
 }
 
-func NewCreateBudgetForm(data budget.Data, pages *tview.Pages) *tview.Form {
+func NewCreateBudgetForm(ctx budget.Context) *tview.Form {
+	data, _ := budget.LoadJSONData()
+	pages := ctx[Pages].(*tview.Pages)
+
 	form := tview.NewForm().
 		AddInputField(Name, "", 20, nil, nil).
 		AddDropDown(DefaultCurrency, []string{"PLN", "EUR", "USD", "AUD"}, 0, nil).

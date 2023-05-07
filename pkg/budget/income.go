@@ -11,7 +11,7 @@ type Income struct {
 }
 
 func (e Income) NewTransaction(accountID uint) {
-	data, _ := OpenFile()
+	data, _ := LoadJSONData()
 
 	newID := 0
 	if data.Budgets[data.CurrentBudgetID].Accounts[accountID].Transactions != nil {
@@ -28,7 +28,7 @@ func (e Income) NewTransaction(accountID uint) {
 }
 
 func (e Income) UpdateAccount(accountID uint) {
-	data, _ := OpenFile()
+	data, _ := LoadJSONData()
 	data.Budgets[data.CurrentBudgetID].Accounts[accountID].Balance = data.Budgets[data.CurrentBudgetID].Accounts[accountID].Balance + e.Amount
 	_ = data.SaveFile()
 }

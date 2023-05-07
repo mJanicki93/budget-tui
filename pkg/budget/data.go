@@ -66,7 +66,7 @@ func (d Data) SaveFile() error {
 	return nil
 }
 
-func OpenFile() (Data, error) {
+func LoadJSONData() (Data, error) {
 	data := Data{}
 	file, err := os.Open("data.json")
 	if err != nil {

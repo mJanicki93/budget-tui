@@ -7,71 +7,49 @@ import (
 )
 
 func Home(data budget.Data) {
+	ctx := budget.NewContext()
 	app := tview.NewApplication()
 
 	//Creating all views
 	pages := tview.NewPages()
 	menu := tview.NewList()
 	budgetInfo := tview.NewTextView()
-	account := tview.NewFrame(tview.NewGrid())
+	detailsFrame := tview.NewFrame(tview.NewGrid())
+	mainGrid := tview.NewGrid()
 	helpInfo := tview.NewTextView()
-	help := GetHelpWindow(pages)
+	helpFrame := tview.NewFrame(tview.NewGrid())
+	newBudgetForm := tview.NewForm()
+	newAccountForm := tview.NewForm()
+	transferForm := tview.NewForm()
+	quickOutcomeForm := tview.NewForm()
+	quickIncomeForm := tview.NewForm()
 
-	newBudget := NewCreateBudgetForm(data, pages)
+	//Add to context
+	ctx.AddMap(map[string]any{
+		App:              app,
+		Pages:            pages,
+		Menu:             menu,
+		BudegtInfo:       budgetInfo,
+		DetailsFrame:     detailsFrame,
+		MainGrid:         mainGrid,
+		HelpInfo:         helpInfo,
+		HelpFrame:        helpFrame,
+		NewBudgetForm:    newBudgetForm,
+		NewAccountForm:   newAccountForm,
+		TransferForm:     transferForm,
+		QuickOutcomeForm: quickOutcomeForm,
+		QuickIncomeForm:  quickIncomeForm,
+	})
 
-	newAccount := NewCreateAccountForm(data, pages, menu, account, app)
-
-	transferForm := GetTransferForm(data, pages, menu, account, app)
-	quickOutcomeForm := GetQuickOutcomeForm(pages, menu, account, app)
-	quickIncomeForm := GetQuickIncomeForm(pages, menu, account, app)
-
-	helpInfo.SetBorder(true)
-	helpInfo.
-		SetText(" Press F1 for help, press Ctrl-C to exit")
-
-	budgetInfo.SetBorder(true)
-	budgetInfo.
-		SetText(data.Budgets[data.CurrentBudgetID].Name)
-
-	account.SetBorder(true)
-
-	LoadMenu(menu, account, app, pages)
-
-	mainView := GetMainView(helpInfo, menu, account, budgetInfo)
-
-	pages.AddAndSwitchToPage("main", mainView, true).
-		AddPage("help", tview.NewGrid().
-			SetColumns(0, 64, 0).
-			SetRows(0, 22, 0).
-			AddItem(help, 1, 1, 1, 1, 0, 0, true), true, false).
-		AddPage("createBudget", tview.NewGrid().
-			SetColumns(0, 58, 0).
-			SetRows(0, 12, 0).
-			AddItem(newBudget, 1, 1, 1, 1, 0, 0, true), true, false).
-		AddPage("createAccount", tview.NewGrid().
-			SetColumns(0, 58, 0).
-			SetRows(0, 13, 0).
-			AddItem(newAccount, 1, 1, 1, 1, 0, 0, true), true, false).
-		AddPage("transferForm", tview.NewGrid().
-			SetColumns(0, 58, 0).
-			SetRows(0, 15, 0).
-			AddItem(transferForm, 1, 1, 1, 1, 0, 0, true), true, false).
-		AddPage("quickOutcome", tview.NewGrid().
-			SetColumns(0, 30, 0).
-			SetRows(0, 9, 0).
-			AddItem(quickOutcomeForm, 1, 1, 1, 1, 0, 0, true), true, false).
-		AddPage("quickIncome", tview.NewGrid().
-			SetColumns(0, 30, 0).
-			SetRows(0, 9, 0).
-			AddItem(quickIncomeForm, 1, 1, 1, 1, 0, 0, true), true, false)
+	LoadAppData(ctx)
 
 	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		if event.Key() == tcell.KeyCtrlR {
-			LoadMenu(menu, account, app, pages)
+			LoadAppData(ctx)
 			pages.ShowPage("main")
 		}
 		if event.Key() == tcell.KeyF1 {
-			pages.ShowPage("help")
+			pages.ShowPage("helpFrame")
 			return nil
 		}
 		if event.Key() == tcell.KeyCtrlB {
