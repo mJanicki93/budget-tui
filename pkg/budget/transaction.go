@@ -22,6 +22,8 @@ func CommitTransaction(t transactions, id uint) {
 
 func EditTransaction(accountID uint, newT Transaction) {
 	data, _ := LoadJSONData()
+	oldDate := data.Budgets[data.CurrentBudgetID].Accounts[accountID].Transactions[newT.ID].Date
 	data.Budgets[data.CurrentBudgetID].Accounts[accountID].Transactions[newT.ID] = newT
+	data.Budgets[data.CurrentBudgetID].Accounts[accountID].Transactions[newT.ID].Date = oldDate
 	_ = data.SaveFile()
 }
