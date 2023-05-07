@@ -5,6 +5,7 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -21,7 +22,8 @@ func NewCreateBudgetFormInit() *tview.Form {
 				return false
 			}
 			return true
-		}, nil)
+		}, nil).
+		AddTextArea(Categories, "Bills,Savings,Food", 40, 0, 0, nil)
 
 	form.SetBorder(true).SetTitle("New Budget").SetTitleAlign(tview.AlignLeft)
 
@@ -44,7 +46,8 @@ func NewCreateBudgetForm(ctx budget.Context) *tview.Form {
 				return false
 			}
 			return true
-		}, nil)
+		}, nil).
+		AddTextArea(Categories, "Bills,Savings,Food", 40, 0, 0, nil)
 
 	form.SetBorder(true).SetTitle("New Budget").SetTitleAlign(tview.AlignLeft)
 	form.AddButton("Save", func() {
@@ -52,8 +55,12 @@ func NewCreateBudgetForm(ctx budget.Context) *tview.Form {
 		firstDayInt, _ := strconv.Atoi(form.GetFormItemByLabel(FirstDayOfMonth).(*tview.InputField).GetText())
 		budgetName := form.GetFormItemByLabel(Name).(*tview.InputField).GetText()
 		_, defaultCurrency := form.GetFormItemByLabel(DefaultCurrency).(*tview.DropDown).GetCurrentOption()
+		categories := form.GetFormItemByLabel(Categories).(*tview.TextArea).GetText()
 
-		if budgetName != "" && form.GetFormItemByLabel(FirstDayOfMonth).(*tview.InputField).GetText() != "" && defaultCurrency == "" {
+		splitedCategories := strings.Split(categories, ",")
+		splitedCategories = append([]string{""}, splitedCategories...)
+
+		if budgetName != "" && form.GetFormItemByLabel(FirstDayOfMonth).(*tview.InputField).GetText() != "" && defaultCurrency == "" && categories != "" {
 			//Add budget entity
 			data.Budgets = append(data.Budgets, budget.Budget{
 				ID:   uint(len(data.Budgets)),
@@ -62,7 +69,8 @@ func NewCreateBudgetForm(ctx budget.Context) *tview.Form {
 					DefaultCurrency: defaultCurrency,
 					FirstDay:        uint(firstDayInt),
 				},
-				CreatedAt: time.Now(),
+				Categories: splitedCategories,
+				CreatedAt:  time.Now(),
 			})
 			data.CurrentBudgetID = uint(len(data.Budgets)) - 1
 

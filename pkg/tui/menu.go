@@ -52,10 +52,10 @@ func LoadAppMenu(ctx budget.Context) {
 			ShowPopupQuit(Alert, ctx)
 		})
 	menu.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyRight {
-			app.SetFocus(detailsFrame)
-			return nil
-		}
+		//if event.Key() == tcell.KeyRight {
+		//	app.SetFocus(detailsFrame)
+		//	return nil
+		//}
 		return event
 	})
 

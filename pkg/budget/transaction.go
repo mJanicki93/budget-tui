@@ -19,3 +19,9 @@ func CommitTransaction(t transactions, id uint) {
 	t.NewTransaction(id)
 	t.UpdateAccount(id)
 }
+
+func EditTransaction(accountID int, newT Transaction) {
+	data, _ := LoadJSONData()
+	data.Budgets[data.CurrentBudgetID].Accounts[accountID].Transactions[newT.ID] = newT
+	_ = data.SaveFile()
+}

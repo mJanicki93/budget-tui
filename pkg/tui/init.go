@@ -4,6 +4,7 @@ import (
 	"budgettui/pkg/budget"
 	"github.com/rivo/tview"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -35,7 +36,7 @@ func Init() {
 
 	pages.AddPage("createBudget", tview.NewGrid().
 		SetColumns(0, 60, 0).
-		SetRows(0, 11, 0).
+		SetRows(0, 18, 0).
 		AddItem(createBudgetForm, 1, 1, 1, 1, 0, 0, true), true, false)
 
 	pages.AddPage("createAccount", tview.NewGrid().
@@ -50,7 +51,12 @@ func Init() {
 			firstDayInt, _ := strconv.Atoi(createBudgetForm.GetFormItemByLabel(FirstDayOfMonth).(*tview.InputField).GetText())
 			budgetName := createBudgetForm.GetFormItemByLabel(Name).(*tview.InputField).GetText()
 			currencyIndex, defaultCurrency := createBudgetForm.GetFormItemByLabel(DefaultCurrency).(*tview.DropDown).GetCurrentOption()
-			if budgetName != "" && createBudgetForm.GetFormItemByLabel(FirstDayOfMonth).(*tview.InputField).GetText() != "" && defaultCurrency == "" {
+			categories := createBudgetForm.GetFormItemByLabel(Categories).(*tview.TextArea).GetText()
+
+			splitedCategories := strings.Split(categories, ",")
+			splitedCategories = append([]string{""}, splitedCategories...)
+
+			if budgetName != "" && createBudgetForm.GetFormItemByLabel(FirstDayOfMonth).(*tview.InputField).GetText() != "" && defaultCurrency != "" && categories != "" {
 				//Add budget entity
 				data.Budgets = append(data.Budgets, budget.Budget{
 					ID:   0,
@@ -59,7 +65,8 @@ func Init() {
 						DefaultCurrency: defaultCurrency,
 						FirstDay:        uint(firstDayInt),
 					},
-					CreatedAt: time.Now(),
+					Categories: splitedCategories,
+					CreatedAt:  time.Now(),
 				})
 				data.CurrentBudgetID = 0
 

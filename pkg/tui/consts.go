@@ -11,6 +11,7 @@ const Account = "Account"
 const Amount = "Amount"
 const Description = "Description"
 const Category = "Category"
+const Categories = "Categories"
 
 // Elements
 const App = "app"
