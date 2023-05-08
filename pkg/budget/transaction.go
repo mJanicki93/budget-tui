@@ -2,7 +2,7 @@ package budget
 
 import "time"
 
-type Transaction struct {
+type TransactionEntity struct {
 	ID          uint
 	Description string
 	Amount      float64
@@ -10,17 +10,17 @@ type Transaction struct {
 	Date        time.Time
 }
 
-type transactions interface {
+type Transaction interface {
 	NewTransaction(accountID uint)
 	UpdateAccount(accountID uint)
 }
 
-func CommitTransaction(t transactions, id uint) {
+func CommitTransaction(t Transaction, id uint) {
 	t.NewTransaction(id)
 	t.UpdateAccount(id)
 }
 
-func EditTransaction(accountID uint, newT Transaction) {
+func EditTransaction(accountID uint, newT TransactionEntity) {
 	data, _ := LoadJSONData()
 	oldDate := data.Budgets[data.CurrentBudgetID].Accounts[accountID].Transactions[newT.ID].Date
 	data.Budgets[data.CurrentBudgetID].Accounts[accountID].Transactions[newT.ID] = newT

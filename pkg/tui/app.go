@@ -28,8 +28,8 @@ func LoadAppElements(ctx budget.Context) {
 	newBudget := NewCreateBudgetForm(ctx)
 	newAccount := NewCreateAccountForm(ctx)
 	transferForm := GetTransferForm(ctx)
-	quickOutcomeForm := GetQuickOutcomeForm(ctx)
-	quickIncomeForm := GetQuickIncomeForm(ctx)
+	quickOutcomeForm := GetQuickTransactionForm(false, ctx)
+	quickIncomeForm := GetQuickTransactionForm(true, ctx)
 
 	helpInfo.SetBorder(true)
 	helpInfo.

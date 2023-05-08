@@ -24,8 +24,8 @@ func GetDetailsFrames(ctx budget.Context) map[uint]*tview.Grid {
 		outcome := tview.NewButton("OUT")
 		income := tview.NewButton("IN")
 		pageName := fmt.Sprintf("outcomeForm%v", account.Name)
-		outcomeForm := GetOutcomeForm(account.ID, pageName, ctx)
-		incomeForm := GetIncomeForm(account.ID, pageName, ctx)
+		outcomeForm := GetNewTransactionForm(account.ID, pageName, false, ctx)
+		incomeForm := GetNewTransactionForm(account.ID, pageName, true, ctx)
 		transactions := tview.NewTable().SetBorders(false)
 		transactions.SetTitle(fmt.Sprintf("%v", account.ID))
 

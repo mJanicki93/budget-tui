@@ -6,5 +6,5 @@ type Account struct {
 	Currency     string
 	Balance      float64
 	UseInBudget  bool
-	Transactions []Transaction
+	Transactions []TransactionEntity
 }

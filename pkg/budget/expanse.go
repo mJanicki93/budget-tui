@@ -16,7 +16,7 @@ func (e Expanse) NewTransaction(accountID uint) {
 	if data.Budgets[data.CurrentBudgetID].Accounts[accountID].Transactions != nil {
 		newID = len(data.Budgets[data.CurrentBudgetID].Accounts[accountID].Transactions)
 	}
-	data.Budgets[data.CurrentBudgetID].Accounts[accountID].Transactions = append(data.Budgets[data.CurrentBudgetID].Accounts[accountID].Transactions, Transaction{
+	data.Budgets[data.CurrentBudgetID].Accounts[accountID].Transactions = append(data.Budgets[data.CurrentBudgetID].Accounts[accountID].Transactions, TransactionEntity{
 		ID:          uint(newID),
 		Description: e.Description,
 		Amount:      -e.Amount,

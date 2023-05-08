@@ -9,75 +9,7 @@ import (
 	"time"
 )
 
-func GetOutcomeForm(accountID uint, pageName string, ctx budget.Context) *tview.Form {
-	data, _ := budget.LoadJSONData()
-	pages := ctx[Pages].(*tview.Pages)
-
-	accountNames := func() []string {
-		var accountNamesList []string
-		for _, account := range data.Budgets[data.CurrentBudgetID].Accounts {
-			accountNamesList = append(accountNamesList, account.Name)
-		}
-		return accountNamesList
-	}
-
-	form := tview.NewForm().
-		AddInputField(Description, "", 20, nil, nil).
-		AddDropDown(Category, data.Budgets[data.CurrentBudgetID].Categories, 0, nil).
-		AddInputField(Amount, "", 20, func(textToCheck string, lastChar rune) bool {
-			intValue, err := strconv.ParseFloat(textToCheck, 64)
-			if err != nil {
-				return false
-			}
-			if intValue < 1 {
-				return false
-			}
-			return true
-		}, nil).
-		AddDropDown(Account, accountNames(), int(accountID), nil)
-
-	form.SetBorder(true).SetTitle("Outcome").SetTitleAlign(tview.AlignLeft).SetBorderColor(tcell.ColorDarkRed)
-	form.AddButton("Save", func() {
-		//Get form values
-		amount, _ := strconv.ParseFloat(form.GetFormItemByLabel(Amount).(*tview.InputField).GetText(), 64)
-		description := form.GetFormItemByLabel(Description).(*tview.InputField).GetText()
-		_, category := form.GetFormItemByLabel(Category).(*tview.DropDown).GetCurrentOption()
-		i, _ := form.GetFormItemByLabel(Account).(*tview.DropDown).GetCurrentOption()
-
-		if description != "" && form.GetFormItemByLabel(Amount).(*tview.InputField).GetText() != "" {
-			//Add budget entity
-			expanse := budget.Expanse{
-				Description: description,
-				Amount:      amount,
-				Category:    category,
-				Date:        time.Now(),
-			}
-			budget.CommitTransaction(expanse, uint(i))
-			//Actions
-			LoadAppElements(ctx)
-			pages.HidePage(pageName)
-			pages.ShowPage("main")
-		} else {
-			ShowPopup("Fill required fields", Alert, ctx)
-		}
-
-	}).AddButton("Quit", func() {
-		pages.HidePage(pageName)
-		pages.ShowPage("main")
-	})
-
-	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyEscape {
-			pages.HidePage(pageName)
-			pages.ShowPage("main")
-		}
-		return event
-	})
-
-	return form
-}
-
-func GetIncomeForm(accountID uint, pageName string, ctx budget.Context) *tview.Form {
+func GetNewTransactionForm(accountID uint, pageName string, income bool, ctx budget.Context) *tview.Form {
 	data, _ := budget.LoadJSONData()
 
 	pages := ctx[Pages].(*tview.Pages)
@@ -105,7 +37,12 @@ func GetIncomeForm(accountID uint, pageName string, ctx budget.Context) *tview.F
 		}, nil).
 		AddDropDown(Account, accountNames(), int(accountID), nil)
 
-	form.SetBorder(true).SetTitle("Income").SetTitleAlign(tview.AlignLeft).SetBorderColor(tcell.ColorDarkGreen)
+	if income {
+		form.SetBorder(true).SetTitle("Income").SetTitleAlign(tview.AlignLeft).SetBorderColor(tcell.ColorDarkGreen)
+	} else {
+		form.SetBorder(true).SetTitle("Outcome").SetTitleAlign(tview.AlignLeft).SetBorderColor(tcell.ColorDarkRed)
+	}
+
 	form.AddButton("Save", func() {
 		//Get form values
 		amount, _ := strconv.ParseFloat(form.GetFormItemByLabel(Amount).(*tview.InputField).GetText(), 64)
@@ -115,14 +52,24 @@ func GetIncomeForm(accountID uint, pageName string, ctx budget.Context) *tview.F
 
 		if description != "" && form.GetFormItemByLabel(Amount).(*tview.InputField).GetText() != "" {
 			//Add budget entity
-			income := budget.Income{
-				Description: description,
-				Amount:      amount,
-				Category:    category,
-				Date:        time.Now(),
+			var transaction budget.Transaction
+			if income {
+				transaction = budget.Income{
+					Description: description,
+					Amount:      amount,
+					Category:    category,
+					Date:        time.Now(),
+				}
+			} else {
+				transaction = budget.Expanse{
+					Description: description,
+					Amount:      amount,
+					Category:    category,
+					Date:        time.Now(),
+				}
 			}
 
-			budget.CommitTransaction(income, uint(i))
+			budget.CommitTransaction(transaction, uint(i))
 
 			//Actions
 			LoadAppElements(ctx)
@@ -150,7 +97,11 @@ func GetIncomeForm(accountID uint, pageName string, ctx budget.Context) *tview.F
 	return form
 }
 
-func GetQuickOutcomeForm(ctx budget.Context) *tview.Form {
+func GetQuickTransactionForm(income bool, ctx budget.Context) *tview.Form {
+	pageName := "quickOutcome"
+	if income {
+		pageName = "quickIncome"
+	}
 	pages := ctx[Pages].(*tview.Pages)
 	form := tview.NewForm().
 		AddInputField(Description, "", 20, nil, nil).
@@ -165,27 +116,42 @@ func GetQuickOutcomeForm(ctx budget.Context) *tview.Form {
 			return true
 		}, nil)
 
-	form.SetBorder(true).SetTitle("Outcome").SetTitleAlign(tview.AlignLeft).SetBorderColor(tcell.ColorDarkRed)
+	if income {
+		form.SetBorder(true).SetTitle("Income").SetTitleAlign(tview.AlignLeft).SetBorderColor(tcell.ColorDarkGreen)
+	} else {
+		form.SetBorder(true).SetTitle("Outcome").SetTitleAlign(tview.AlignLeft).SetBorderColor(tcell.ColorDarkRed)
+	}
+
 	form.AddButton("Save", func() {
 		amount, _ := strconv.ParseFloat(form.GetFormItemByLabel(Amount).(*tview.InputField).GetText(), 64)
 		description := form.GetFormItemByLabel(Description).(*tview.InputField).GetText()
 		if description != "" && form.GetFormItemByLabel(Amount).(*tview.InputField).GetText() != "" {
 			//Add budget entity
-			expanse := budget.Expanse{
-				Description: description,
-				Amount:      amount,
-				Category:    "",
-				Date:        time.Now(),
+			var transaction budget.Transaction
+			if income {
+				transaction = budget.Income{
+					Description: description,
+					Amount:      amount,
+					Category:    "",
+					Date:        time.Now(),
+				}
+			} else {
+				transaction = budget.Expanse{
+					Description: description,
+					Amount:      amount,
+					Category:    "",
+					Date:        time.Now(),
+				}
 			}
 
-			budget.CommitTransaction(expanse, 0)
+			budget.CommitTransaction(transaction, 0)
 
 			//Actions
 			LoadAppElements(ctx)
 			form.GetFormItemByLabel(Amount).(*tview.InputField).SetText("")
 			form.GetFormItemByLabel(Description).(*tview.InputField).SetText("")
 			form.SetFocus(0)
-			pages.HidePage("quickOutcome")
+			pages.HidePage(pageName)
 			pages.ShowPage("main")
 		} else {
 			ShowPopup("Fill required fields", Alert, ctx)
@@ -197,66 +163,7 @@ func GetQuickOutcomeForm(ctx budget.Context) *tview.Form {
 			form.GetFormItemByLabel(Amount).(*tview.InputField).SetText("")
 			form.GetFormItemByLabel(Description).(*tview.InputField).SetText("")
 			form.SetFocus(0)
-			pages.HidePage("quickOutcome")
-			pages.ShowPage("main")
-		}
-		return event
-	})
-
-	return form
-}
-
-func GetQuickIncomeForm(ctx budget.Context) *tview.Form {
-	pages := ctx[Pages].(*tview.Pages)
-	form := tview.NewForm().
-		AddInputField(Description, "", 20, nil, nil).
-		AddInputField(Amount, "", 20, func(textToCheck string, lastChar rune) bool {
-			intValue, err := strconv.ParseFloat(textToCheck, 64)
-			if err != nil {
-				return false
-			}
-			if intValue < 1 {
-				return false
-			}
-			return true
-		}, nil)
-
-	form.SetBorder(true).SetTitle("Income").SetTitleAlign(tview.AlignLeft).SetBorderColor(tcell.ColorDarkGreen)
-	form.AddButton("Save", func() {
-		//Get form values
-		amount, _ := strconv.ParseFloat(form.GetFormItemByLabel(Amount).(*tview.InputField).GetText(), 64)
-		description := form.GetFormItemByLabel(Description).(*tview.InputField).GetText()
-
-		if description != "" && form.GetFormItemByLabel(Amount).(*tview.InputField).GetText() != "" {
-			//Add budget entity
-			income := budget.Income{
-				Description: description,
-				Amount:      amount,
-				Category:    "",
-				Date:        time.Now(),
-			}
-
-			budget.CommitTransaction(income, 0)
-
-			//Actions
-			LoadAppElements(ctx)
-			form.GetFormItemByLabel(Amount).(*tview.InputField).SetText("")
-			form.GetFormItemByLabel(Description).(*tview.InputField).SetText("")
-			form.SetFocus(0)
-			pages.HidePage("quickIncome")
-			pages.ShowPage("main")
-		} else {
-			ShowPopup("Fill required fields", Alert, ctx)
-		}
-
-	})
-
-	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		if event.Key() == tcell.KeyEscape {
-			form.GetFormItemByLabel(Amount).(*tview.InputField).SetText("")
-			form.GetFormItemByLabel(Description).(*tview.InputField).SetText("")
-			form.SetFocus(0)
-			pages.HidePage("quickIncome")
+			pages.HidePage(pageName)
 			pages.ShowPage("main")
 		}
 		return event
@@ -379,7 +286,7 @@ func GetTransactionForm(accountID uint, transactionID uint, pageName string, ctx
 
 		if description != "" && form.GetFormItemByLabel(Amount).(*tview.InputField).GetText() != "" {
 			//Add budget entity
-			newTransaction := budget.Transaction{
+			newTransaction := budget.TransactionEntity{
 				ID:          uint(transactionID),
 				Description: description,
 				Amount:      amount,
