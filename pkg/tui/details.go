@@ -23,11 +23,22 @@ func GetDetailsFrames(ctx budget.Context) map[uint]*tview.Grid {
 		//Buttons
 		outcome := tview.NewButton("OUT")
 		income := tview.NewButton("IN")
+		headers := tview.NewTable().SetBorders(false)
+		outcome.SetBackgroundColor(tcell.ColorDarkRed)
+		outcome.SetBackgroundColorActivated(tcell.ColorRed).SetTitleColor(tcell.ColorWhite)
+		income.SetBackgroundColor(tcell.ColorDarkGreen)
+		income.SetBackgroundColorActivated(tcell.ColorGreen).SetTitleColor(tcell.ColorWhite)
+
 		pageName := fmt.Sprintf("outcomeForm%v", account.Name)
 		outcomeForm := GetNewTransactionForm(account.ID, pageName, false, ctx)
 		incomeForm := GetNewTransactionForm(account.ID, pageName, true, ctx)
 		transactions := tview.NewTable().SetBorders(false)
 		transactions.SetTitle(fmt.Sprintf("%v", account.ID))
+
+		outcome.SetBackgroundColor(tcell.ColorDarkRed).SetTitleColor(tcell.ColorWhite)
+		outcome.SetBackgroundColorActivated(tcell.ColorRed)
+		income.SetBackgroundColor(tcell.ColorDarkGreen).SetTitleColor(tcell.ColorWhite)
+		income.SetBackgroundColorActivated(tcell.ColorGreen)
 
 		outcome.SetSelectedFunc(func() {
 			pages.AddPage(pageName, tview.NewGrid().
@@ -46,9 +57,9 @@ func GetDetailsFrames(ctx budget.Context) map[uint]*tview.Grid {
 
 		menu := tview.NewGrid().
 			SetRows(1).
-			SetColumns(0, 5, 1, 5, 5, 5, 0).
-			AddItem(outcome, 0, 1, 1, 1, 0, 0, true).
-			AddItem(income, 0, 3, 1, 1, 0, 0, false)
+			SetColumns(5, 1, 5, 5, 5, 0).
+			AddItem(outcome, 0, 0, 1, 1, 0, 0, true).
+			AddItem(income, 0, 2, 1, 1, 0, 0, false)
 
 		outcome.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			if event.Key() == tcell.KeyTab {
@@ -62,6 +73,7 @@ func GetDetailsFrames(ctx budget.Context) map[uint]*tview.Grid {
 		income.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			if event.Key() == tcell.KeyTab {
 				app.SetFocus(transactions)
+				headers.SetBackgroundColor(tcell.ColorDarkBlue)
 			}
 			if event.Key() == tcell.KeyEscape {
 				app.SetFocus(mainMenu)
@@ -70,14 +82,13 @@ func GetDetailsFrames(ctx budget.Context) map[uint]*tview.Grid {
 		})
 
 		acccountName := tview.NewTextView().SetText(account.Name)
-
-		headers := tview.NewTable().SetBorders(false)
+		headers.SetBackgroundColor(tcell.ColorDarkGrey)
 		headers.
-			SetCell(0, 0, tview.NewTableCell(fmt.Sprintf("%-3.3s", "ID")).SetBackgroundColor(tcell.ColorDarkGrey)).
-			SetCell(0, 1, tview.NewTableCell(fmt.Sprintf("%-30.30s", Description)).SetBackgroundColor(tcell.ColorDarkGrey)).
-			SetCell(0, 2, tview.NewTableCell(fmt.Sprintf("%-15.15s", Amount)).SetBackgroundColor(tcell.ColorDarkGrey)).
-			SetCell(0, 3, tview.NewTableCell(fmt.Sprintf("%-10.10s", Category)).SetBackgroundColor(tcell.ColorDarkGrey)).
-			SetCell(0, 4, tview.NewTableCell(fmt.Sprintf("%-10.10s", "Date")).SetBackgroundColor(tcell.ColorDarkGrey))
+			SetCell(0, 0, tview.NewTableCell(fmt.Sprintf("%-3.3s", "ID"))).
+			SetCell(0, 1, tview.NewTableCell(fmt.Sprintf("%-30.30s", Description))).
+			SetCell(0, 2, tview.NewTableCell(fmt.Sprintf("%-15.15s", Amount))).
+			SetCell(0, 3, tview.NewTableCell(fmt.Sprintf("%-10.10s", Category))).
+			SetCell(0, 4, tview.NewTableCell(fmt.Sprintf("%-10.10s", "Date")))
 		transactions.SetSelectable(true, false)
 		for i, t := range d.Budgets[d.CurrentBudgetID].Accounts[account.ID].Transactions {
 			transactions.
@@ -100,6 +111,7 @@ func GetDetailsFrames(ctx budget.Context) map[uint]*tview.Grid {
 		transactions.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 			if event.Key() == tcell.KeyTab {
 				app.SetFocus(outcome)
+				headers.SetBackgroundColor(tcell.ColorDarkGrey)
 			}
 			if event.Key() == tcell.KeyEscape {
 				app.SetFocus(mainMenu)
@@ -107,12 +119,12 @@ func GetDetailsFrames(ctx budget.Context) map[uint]*tview.Grid {
 			return event
 		})
 		accountGrid := tview.NewGrid().
-			SetRows(1, 2, 1, 0).
+			SetRows(1, 1, 1, 1, 0).
 			SetColumns(0, 0).
 			AddItem(acccountName, 0, 0, 1, 7, 0, 0, false).
 			AddItem(menu, 1, 0, 1, 2, 0, 0, true).
-			AddItem(headers, 2, 0, 1, 4, 0, 0, true).
-			AddItem(transactions, 3, 0, 1, 4, 0, 0, false)
+			AddItem(headers, 3, 0, 1, 4, 0, 0, true).
+			AddItem(transactions, 4, 0, 1, 4, 0, 0, false)
 		gridList[account.ID] = accountGrid
 	}
 
