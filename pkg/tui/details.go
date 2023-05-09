@@ -81,7 +81,7 @@ func GetDetailsFrames(ctx budget.Context) map[uint]*tview.Grid {
 			return event
 		})
 
-		acccountName := tview.NewTextView().SetText(account.Name)
+		accountName := tview.NewTextView().SetText(account.Name)
 		headers.SetBackgroundColor(tcell.ColorDarkGrey)
 		headers.
 			SetCell(0, 0, tview.NewTableCell(fmt.Sprintf("%-3.3s", "ID"))).
@@ -121,7 +121,7 @@ func GetDetailsFrames(ctx budget.Context) map[uint]*tview.Grid {
 		accountGrid := tview.NewGrid().
 			SetRows(1, 1, 1, 1, 0).
 			SetColumns(0, 0).
-			AddItem(acccountName, 0, 0, 1, 7, 0, 0, false).
+			AddItem(accountName, 0, 0, 1, 7, 0, 0, false).
 			AddItem(menu, 1, 0, 1, 2, 0, 0, true).
 			AddItem(headers, 3, 0, 1, 4, 0, 0, true).
 			AddItem(transactions, 4, 0, 1, 4, 0, 0, false)
