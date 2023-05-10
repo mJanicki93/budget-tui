@@ -2,6 +2,7 @@ package tui
 
 import (
 	"budgettui/pkg/budget"
+	"budgettui/pkg/helper"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"strconv"
@@ -9,9 +10,9 @@ import (
 
 func NewCreateAccountFormInit() *tview.Form {
 	form := tview.NewForm().
-		AddInputField(Name, "", 20, nil, nil).
-		AddDropDown(Currency, []string{"PLN", "EUR", "USD", "AUD"}, 0, nil).
-		AddInputField(InitialAmount, "", 20, func(textToCheck string, lastChar rune) bool {
+		AddInputField(helper.Name, "", 20, nil, nil).
+		AddDropDown(helper.Currency, []string{"PLN", "EUR", "USD", "AUD"}, 0, nil).
+		AddInputField(helper.InitialAmount, "", 20, func(textToCheck string, lastChar rune) bool {
 			floatValue, err := strconv.ParseFloat(textToCheck, 64)
 			if err != nil {
 				return false
@@ -21,7 +22,7 @@ func NewCreateAccountFormInit() *tview.Form {
 			}
 			return true
 		}, nil).
-		AddCheckbox(UseInBudget, true, nil)
+		AddCheckbox(helper.UseInBudget, true, nil)
 
 	form.SetBorder(true).SetTitle("New Account").SetTitleAlign(tview.AlignLeft)
 
@@ -29,13 +30,13 @@ func NewCreateAccountFormInit() *tview.Form {
 }
 
 func NewCreateAccountForm(ctx budget.Context) *tview.Form {
-	data, _ := budget.LoadJSONData()
-	pages := ctx[Pages].(*tview.Pages)
+	data := ctx[helper.Data].(*budget.Data)
+	pages := ctx[helper.Pages].(*tview.Pages)
 
 	form := tview.NewForm().
-		AddInputField(Name, "", 20, nil, nil).
-		AddDropDown(Currency, []string{"PLN", "EUR", "USD", "AUD"}, 0, nil).
-		AddInputField(InitialAmount, "", 20, func(textToCheck string, lastChar rune) bool {
+		AddInputField(helper.Name, "", 20, nil, nil).
+		AddDropDown(helper.Currency, []string{"PLN", "EUR", "USD", "AUD"}, 0, nil).
+		AddInputField(helper.InitialAmount, "", 20, func(textToCheck string, lastChar rune) bool {
 			floatValue, err := strconv.ParseFloat(textToCheck, 64)
 			if err != nil {
 				return false
@@ -45,17 +46,17 @@ func NewCreateAccountForm(ctx budget.Context) *tview.Form {
 			}
 			return true
 		}, nil).
-		AddCheckbox(UseInBudget, true, nil)
+		AddCheckbox(helper.UseInBudget, true, nil)
 
 	form.SetBorder(true).SetTitle("New Account").SetTitleAlign(tview.AlignLeft)
 
 	form.AddButton("Save", func() {
 		//Get form values
-		accountName := form.GetFormItemByLabel(Name).(*tview.InputField).GetText()
-		_, currency := form.GetFormItemByLabel(Currency).(*tview.DropDown).GetCurrentOption()
-		initialAmount, _ := strconv.ParseFloat(form.GetFormItemByLabel(InitialAmount).(*tview.InputField).GetText(), 64)
-		useInBudget := form.GetFormItemByLabel(UseInBudget).(*tview.Checkbox).IsChecked()
-		if accountName != "" && currency != "" && form.GetFormItemByLabel(InitialAmount).(*tview.InputField).GetText() != "" {
+		accountName := form.GetFormItemByLabel(helper.Name).(*tview.InputField).GetText()
+		_, currency := form.GetFormItemByLabel(helper.Currency).(*tview.DropDown).GetCurrentOption()
+		initialAmount, _ := strconv.ParseFloat(form.GetFormItemByLabel(helper.InitialAmount).(*tview.InputField).GetText(), 64)
+		useInBudget := form.GetFormItemByLabel(helper.UseInBudget).(*tview.Checkbox).IsChecked()
+		if accountName != "" && currency != "" && form.GetFormItemByLabel(helper.InitialAmount).(*tview.InputField).GetText() != "" {
 			//Add detailsFrame entity
 			data.Budgets[data.CurrentBudgetID].Accounts = append(data.Budgets[data.CurrentBudgetID].Accounts, budget.Account{
 				ID:          uint(len(data.Budgets[data.CurrentBudgetID].Accounts)),
@@ -71,7 +72,7 @@ func NewCreateAccountForm(ctx budget.Context) *tview.Form {
 			pages.HidePage("createAccount")
 			pages.ShowPage("main")
 		} else {
-			ShowPopup("Fill required fields", Alert, ctx)
+			ShowPopup("Fill required fields", helper.Alert, ctx)
 		}
 
 	}).

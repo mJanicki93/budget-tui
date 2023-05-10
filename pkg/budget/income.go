@@ -1,6 +1,9 @@
 package budget
 
-import "time"
+import (
+	"budgettui/pkg/helper"
+	"time"
+)
 
 type Income struct {
 	Name        string
@@ -10,8 +13,8 @@ type Income struct {
 	Date        time.Time
 }
 
-func (e Income) NewTransaction(accountID uint) {
-	data, _ := LoadJSONData()
+func (e Income) NewTransaction(accountID uint, ctx Context) {
+	data := ctx[helper.Data].(*Data)
 
 	newID := 0
 	if data.Budgets[data.CurrentBudgetID].Accounts[accountID].Transactions != nil {
@@ -27,8 +30,8 @@ func (e Income) NewTransaction(accountID uint) {
 	_ = data.SaveFile()
 }
 
-func (e Income) UpdateAccount(accountID uint) {
-	data, _ := LoadJSONData()
+func (e Income) UpdateAccount(accountID uint, ctx Context) {
+	data := ctx[helper.Data].(*Data)
 	data.Budgets[data.CurrentBudgetID].Accounts[accountID].Balance = data.Budgets[data.CurrentBudgetID].Accounts[accountID].Balance + e.Amount
 	_ = data.SaveFile()
 }

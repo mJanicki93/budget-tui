@@ -2,19 +2,20 @@ package tui
 
 import (
 	"budgettui/pkg/budget"
+	"budgettui/pkg/helper"
 	"fmt"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
 func LoadAppMenu(ctx budget.Context) {
-	app := ctx[App].(*tview.Application)
-	detailsFrame := ctx[DetailsFrame].(*tview.Frame)
-	menu := ctx[Menu].(*tview.List)
+	app := ctx[helper.App].(*tview.Application)
+	detailsFrame := ctx[helper.DetailsFrame].(*tview.Frame)
+	menu := ctx[helper.Menu].(*tview.List)
 	currentItem := menu.GetCurrentItem()
 	menu.Clear()
 
-	data, _ := budget.LoadJSONData()
+	data := ctx[helper.Data].(*budget.Data)
 
 	accountList := GetDetailsFrames(ctx)
 
@@ -49,7 +50,7 @@ func LoadAppMenu(ctx budget.Context) {
 			app.Stop()
 		}).
 		AddItem("Quit", "", 'q', func() {
-			ShowPopupQuit(Alert, ctx)
+			ShowPopupQuit(helper.Alert, ctx)
 		})
 	menu.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
 		//if event.Key() == tcell.KeyRight {

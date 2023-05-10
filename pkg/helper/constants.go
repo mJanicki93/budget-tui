@@ -1,4 +1,4 @@
-package tui
+package helper
 
 // Labels
 const Currency = "Currency"
@@ -12,12 +12,14 @@ const Amount = "Amount"
 const Description = "Description"
 const Category = "Category"
 const Categories = "Categories"
+const Data = "Data"
+const CurrentMonth = "currentMonth"
 
 // Elements
 const App = "app"
 const Pages = "pages"
 const Menu = "menu"
-const BudegtInfo = "budgetInfo"
+const TopBar = "topBar"
 const DetailsFrame = "detalisFrame"
 const MainGrid = "mainGrid"
 const HelpInfo = "helpInfo"

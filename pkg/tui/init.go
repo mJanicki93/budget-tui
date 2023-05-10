@@ -2,6 +2,7 @@ package tui
 
 import (
 	"budgettui/pkg/budget"
+	"budgettui/pkg/helper"
 	"github.com/rivo/tview"
 	"strconv"
 	"strings"
@@ -48,15 +49,15 @@ func Init() {
 	createBudgetForm.
 		AddButton("Next", func() {
 			//Get form values
-			firstDayInt, _ := strconv.Atoi(createBudgetForm.GetFormItemByLabel(FirstDayOfMonth).(*tview.InputField).GetText())
-			budgetName := createBudgetForm.GetFormItemByLabel(Name).(*tview.InputField).GetText()
-			currencyIndex, defaultCurrency := createBudgetForm.GetFormItemByLabel(DefaultCurrency).(*tview.DropDown).GetCurrentOption()
-			categories := createBudgetForm.GetFormItemByLabel(Categories).(*tview.TextArea).GetText()
+			firstDayInt, _ := strconv.Atoi(createBudgetForm.GetFormItemByLabel(helper.FirstDayOfMonth).(*tview.InputField).GetText())
+			budgetName := createBudgetForm.GetFormItemByLabel(helper.Name).(*tview.InputField).GetText()
+			currencyIndex, defaultCurrency := createBudgetForm.GetFormItemByLabel(helper.DefaultCurrency).(*tview.DropDown).GetCurrentOption()
+			categories := createBudgetForm.GetFormItemByLabel(helper.Categories).(*tview.TextArea).GetText()
 
 			splitedCategories := strings.Split(categories, ",")
 			splitedCategories = append([]string{""}, splitedCategories...)
 
-			if budgetName != "" && createBudgetForm.GetFormItemByLabel(FirstDayOfMonth).(*tview.InputField).GetText() != "" && defaultCurrency != "" && categories != "" {
+			if budgetName != "" && createBudgetForm.GetFormItemByLabel(helper.FirstDayOfMonth).(*tview.InputField).GetText() != "" && defaultCurrency != "" && categories != "" {
 				//Add budget entity
 				data.Budgets = append(data.Budgets, budget.Budget{
 					ID:   0,
@@ -72,12 +73,12 @@ func Init() {
 
 				//Actions
 				//_ = data.SaveFile()
-				createAccountForm.GetFormItemByLabel(Currency).(*tview.DropDown).SetCurrentOption(currencyIndex)
+				createAccountForm.GetFormItemByLabel(helper.Currency).(*tview.DropDown).SetCurrentOption(currencyIndex)
 				pages.HidePage("createBudget")
 				pages.ShowPage("createAccount")
 			} else {
-				ctx := budget.Context{Pages: pages}
-				ShowPopup("Fill required fields", Alert, ctx)
+				ctx := budget.Context{helper.Pages: pages}
+				ShowPopup("Fill required fields", helper.Alert, ctx)
 			}
 
 		})
@@ -86,11 +87,11 @@ func Init() {
 	createAccountForm.
 		AddButton("Save", func() {
 			//Get form values
-			accountName := createAccountForm.GetFormItemByLabel(Name).(*tview.InputField).GetText()
-			_, currency := createAccountForm.GetFormItemByLabel(Currency).(*tview.DropDown).GetCurrentOption()
-			initialAmount, _ := strconv.ParseFloat(createAccountForm.GetFormItemByLabel(InitialAmount).(*tview.InputField).GetText(), 64)
-			useInBudget := createAccountForm.GetFormItemByLabel(UseInBudget).(*tview.Checkbox).IsChecked()
-			if accountName != "" && currency != "" && createAccountForm.GetFormItemByLabel(InitialAmount).(*tview.InputField).GetText() != "" {
+			accountName := createAccountForm.GetFormItemByLabel(helper.Name).(*tview.InputField).GetText()
+			_, currency := createAccountForm.GetFormItemByLabel(helper.Currency).(*tview.DropDown).GetCurrentOption()
+			initialAmount, _ := strconv.ParseFloat(createAccountForm.GetFormItemByLabel(helper.InitialAmount).(*tview.InputField).GetText(), 64)
+			useInBudget := createAccountForm.GetFormItemByLabel(helper.UseInBudget).(*tview.Checkbox).IsChecked()
+			if accountName != "" && currency != "" && createAccountForm.GetFormItemByLabel(helper.InitialAmount).(*tview.InputField).GetText() != "" {
 				//Add account entity
 				data.Budgets[data.CurrentBudgetID].Accounts = append(data.Budgets[data.CurrentBudgetID].Accounts, budget.Account{
 					ID:          0,
@@ -104,8 +105,8 @@ func Init() {
 				_ = data.SaveFile()
 				app.Stop()
 			} else {
-				ctx := budget.Context{Pages: pages}
-				ShowPopup("Fill required fields", Alert, ctx)
+				ctx := budget.Context{helper.Pages: pages}
+				ShowPopup("Fill required fields", helper.Alert, ctx)
 			}
 
 		}).

@@ -2,6 +2,7 @@ package tui
 
 import (
 	"budgettui/pkg/budget"
+	"budgettui/pkg/helper"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"strconv"
@@ -11,9 +12,9 @@ import (
 
 func NewCreateBudgetFormInit() *tview.Form {
 	form := tview.NewForm().
-		AddInputField(Name, "", 20, nil, nil).
-		AddDropDown(DefaultCurrency, []string{"PLN", "EUR", "USD", "AUD"}, 0, nil).
-		AddInputField(FirstDayOfMonth, "", 2, func(textToCheck string, lastChar rune) bool {
+		AddInputField(helper.Name, "", 20, nil, nil).
+		AddDropDown(helper.DefaultCurrency, []string{"PLN", "EUR", "USD", "AUD"}, 0, nil).
+		AddInputField(helper.FirstDayOfMonth, "", 2, func(textToCheck string, lastChar rune) bool {
 			intValue, err := strconv.Atoi(textToCheck)
 			if err != nil {
 				return false
@@ -23,7 +24,7 @@ func NewCreateBudgetFormInit() *tview.Form {
 			}
 			return true
 		}, nil).
-		AddTextArea(Categories, "Bills,Savings,Food", 40, 0, 0, nil)
+		AddTextArea(helper.Categories, "Bills,Savings,Food", 40, 0, 0, nil)
 
 	form.SetBorder(true).SetTitle("New Budget").SetTitleAlign(tview.AlignLeft)
 
@@ -31,13 +32,13 @@ func NewCreateBudgetFormInit() *tview.Form {
 }
 
 func NewCreateBudgetForm(ctx budget.Context) *tview.Form {
-	data, _ := budget.LoadJSONData()
-	pages := ctx[Pages].(*tview.Pages)
+	data := ctx[helper.Data].(*budget.Data)
+	pages := ctx[helper.Pages].(*tview.Pages)
 
 	form := tview.NewForm().
-		AddInputField(Name, "", 20, nil, nil).
-		AddDropDown(DefaultCurrency, []string{"PLN", "EUR", "USD", "AUD"}, 0, nil).
-		AddInputField(FirstDayOfMonth, "", 2, func(textToCheck string, lastChar rune) bool {
+		AddInputField(helper.Name, "", 20, nil, nil).
+		AddDropDown(helper.DefaultCurrency, []string{"PLN", "EUR", "USD", "AUD"}, 0, nil).
+		AddInputField(helper.FirstDayOfMonth, "", 2, func(textToCheck string, lastChar rune) bool {
 			intValue, err := strconv.Atoi(textToCheck)
 			if err != nil {
 				return false
@@ -47,20 +48,20 @@ func NewCreateBudgetForm(ctx budget.Context) *tview.Form {
 			}
 			return true
 		}, nil).
-		AddTextArea(Categories, "Bills,Savings,Food", 40, 0, 0, nil)
+		AddTextArea(helper.Categories, "Bills,Savings,Food", 40, 0, 0, nil)
 
 	form.SetBorder(true).SetTitle("New Budget").SetTitleAlign(tview.AlignLeft)
 	form.AddButton("Save", func() {
 		//Get form values
-		firstDayInt, _ := strconv.Atoi(form.GetFormItemByLabel(FirstDayOfMonth).(*tview.InputField).GetText())
-		budgetName := form.GetFormItemByLabel(Name).(*tview.InputField).GetText()
-		_, defaultCurrency := form.GetFormItemByLabel(DefaultCurrency).(*tview.DropDown).GetCurrentOption()
-		categories := form.GetFormItemByLabel(Categories).(*tview.TextArea).GetText()
+		firstDayInt, _ := strconv.Atoi(form.GetFormItemByLabel(helper.FirstDayOfMonth).(*tview.InputField).GetText())
+		budgetName := form.GetFormItemByLabel(helper.Name).(*tview.InputField).GetText()
+		_, defaultCurrency := form.GetFormItemByLabel(helper.DefaultCurrency).(*tview.DropDown).GetCurrentOption()
+		categories := form.GetFormItemByLabel(helper.Categories).(*tview.TextArea).GetText()
 
 		splitedCategories := strings.Split(categories, ",")
 		splitedCategories = append([]string{""}, splitedCategories...)
 
-		if budgetName != "" && form.GetFormItemByLabel(FirstDayOfMonth).(*tview.InputField).GetText() != "" && defaultCurrency == "" && categories != "" {
+		if budgetName != "" && form.GetFormItemByLabel(helper.FirstDayOfMonth).(*tview.InputField).GetText() != "" && defaultCurrency == "" && categories != "" {
 			//Add budget entity
 			data.Budgets = append(data.Budgets, budget.Budget{
 				ID:   uint(len(data.Budgets)),
@@ -80,7 +81,7 @@ func NewCreateBudgetForm(ctx budget.Context) *tview.Form {
 			pages.HidePage("createBudget")
 			pages.ShowPage("main")
 		} else {
-			ShowPopup("Fill required fields", Alert, ctx)
+			ShowPopup("Fill required fields", helper.Alert, ctx)
 		}
 
 	}).AddButton("Quit", func() {

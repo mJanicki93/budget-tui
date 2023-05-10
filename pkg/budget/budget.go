@@ -10,7 +10,3 @@ type Budget struct {
 	Categories []string
 	CreatedAt  time.Time
 }
-
-func CreateNewBudget() {
-
-}

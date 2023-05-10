@@ -2,6 +2,7 @@ package tui
 
 import (
 	"budgettui/pkg/budget"
+	"budgettui/pkg/helper"
 	"fmt"
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -10,11 +11,11 @@ import (
 )
 
 func GetDetailsFrames(ctx budget.Context) map[uint]*tview.Grid {
-	d, _ := budget.LoadJSONData()
+	d := ctx[helper.Data].(*budget.Data)
 
-	app := ctx[App].(*tview.Application)
-	mainMenu := ctx[Menu].(*tview.List)
-	pages := ctx[Pages].(*tview.Pages)
+	app := ctx[helper.App].(*tview.Application)
+	mainMenu := ctx[helper.Menu].(*tview.List)
+	pages := ctx[helper.Pages].(*tview.Pages)
 
 	gridList := map[uint]*tview.Grid{}
 	accounts := d.Budgets[d.CurrentBudgetID].Accounts
@@ -85,9 +86,9 @@ func GetDetailsFrames(ctx budget.Context) map[uint]*tview.Grid {
 		headers.SetBackgroundColor(tcell.ColorDarkGrey)
 		headers.
 			SetCell(0, 0, tview.NewTableCell(fmt.Sprintf("%-3.3s", "ID"))).
-			SetCell(0, 1, tview.NewTableCell(fmt.Sprintf("%-30.30s", Description))).
-			SetCell(0, 2, tview.NewTableCell(fmt.Sprintf("%-15.15s", Amount))).
-			SetCell(0, 3, tview.NewTableCell(fmt.Sprintf("%-10.10s", Category))).
+			SetCell(0, 1, tview.NewTableCell(fmt.Sprintf("%-30.30s", helper.Description))).
+			SetCell(0, 2, tview.NewTableCell(fmt.Sprintf("%-15.15s", helper.Amount))).
+			SetCell(0, 3, tview.NewTableCell(fmt.Sprintf("%-10.10s", helper.Category))).
 			SetCell(0, 4, tview.NewTableCell(fmt.Sprintf("%-10.10s", "Date")))
 		transactions.SetSelectable(true, false)
 		for i, t := range d.Budgets[d.CurrentBudgetID].Accounts[account.ID].Transactions {

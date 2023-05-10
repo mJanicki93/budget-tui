@@ -7,11 +7,17 @@ import (
 	"io"
 	"os"
 	"strings"
+	"time"
 )
 
 type Data struct {
 	CurrentBudgetID uint
 	Budgets         []Budget
+}
+
+type YearMonth struct {
+	Year  int
+	Month time.Month
 }
 
 func CreateNewDataFile() error {
@@ -33,7 +39,7 @@ func CreateNewDataFile() error {
 	return nil
 }
 
-func (d Data) CreateNewBudget() {
+func (d *Data) CreateNewBudget() {
 	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Println("Name:")
@@ -52,7 +58,7 @@ func (d Data) CreateNewBudget() {
 	}
 }
 
-func (d Data) SaveFile() error {
+func (d *Data) SaveFile() error {
 	file, err := json.MarshalIndent(d, "", " ")
 	if err != nil {
 		return err
@@ -66,20 +72,45 @@ func (d Data) SaveFile() error {
 	return nil
 }
 
-func LoadJSONData() (Data, error) {
+func CheckSaveFile() bool {
+	found := true
+	_, err := os.Open("data.json")
+	if err != nil {
+		found = false
+	}
+	return found
+}
+
+func LoadJSONData() *Data {
 	data := Data{}
 	file, err := os.Open("data.json")
 	if err != nil {
-		return data, err
+		panic(err)
 	}
 	byteValue, err := io.ReadAll(file)
 	if err != nil {
-		return data, err
+		panic(err)
 	}
 
 	err = json.Unmarshal(byteValue, &data)
 	if err != nil {
-		return data, err
+		panic(err)
 	}
-	return data, nil
+	return &data
+}
+
+func (d *Data) GetMonths() []YearMonth {
+	accounts := d.Budgets[d.CurrentBudgetID].Accounts
+
+	var finalDates []YearMonth
+
+	for _, account := range accounts {
+		for _, t := range account.Transactions {
+			y, m, d := t.Date.Date()
+			if d > 10 {
+				finalDates = append(finalDates, YearMonth{Year: y, Month: m})
+			}
+		}
+	}
+	return finalDates
 }

@@ -1,6 +1,9 @@
 package budget
 
-import "time"
+import (
+	"budgettui/pkg/helper"
+	"time"
+)
 
 type TransactionEntity struct {
 	ID          uint
@@ -11,17 +14,17 @@ type TransactionEntity struct {
 }
 
 type Transaction interface {
-	NewTransaction(accountID uint)
-	UpdateAccount(accountID uint)
+	NewTransaction(accountID uint, ctx Context)
+	UpdateAccount(accountID uint, ctx Context)
 }
 
-func CommitTransaction(t Transaction, id uint) {
-	t.NewTransaction(id)
-	t.UpdateAccount(id)
+func CommitTransaction(t Transaction, id uint, ctx Context) {
+	t.NewTransaction(id, ctx)
+	t.UpdateAccount(id, ctx)
 }
 
-func EditTransaction(accountID uint, newT TransactionEntity) {
-	data, _ := LoadJSONData()
+func EditTransaction(accountID uint, newT TransactionEntity, ctx Context) {
+	data := ctx[helper.Data].(*Data)
 	oldDate := data.Budgets[data.CurrentBudgetID].Accounts[accountID].Transactions[newT.ID].Date
 	data.Budgets[data.CurrentBudgetID].Accounts[accountID].Transactions[newT.ID] = newT
 	data.Budgets[data.CurrentBudgetID].Accounts[accountID].Transactions[newT.ID].Date = oldDate
