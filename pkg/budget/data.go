@@ -103,14 +103,39 @@ func (d *Data) GetMonths() []YearMonth {
 	accounts := d.Budgets[d.CurrentBudgetID].Accounts
 
 	var finalDates []YearMonth
-
+	var currentMonth YearMonth
 	for _, account := range accounts {
 		for _, t := range account.Transactions {
 			y, m, d := t.Date.Date()
-			if d > 10 {
-				finalDates = append(finalDates, YearMonth{Year: y, Month: m})
+			if d >= 10 {
+				found := findInDates(y, m, finalDates)
+				if !found {
+					finalDates = append(finalDates, YearMonth{Year: y, Month: m})
+				}
+
+			} else {
+				currentYear, lastMonth, _ := time.Now().Add(-(10 * 24 * time.Hour)).Date()
+				currentMonth = YearMonth{Year: currentYear, Month: lastMonth}
+				for _, v := range finalDates {
+					if v.Month == lastMonth && v.Year == currentYear {
+						continue
+					}
+				}
+				found := findInDates(currentYear, lastMonth, finalDates)
+				if !found {
+					finalDates = append(finalDates, currentMonth)
+				}
 			}
 		}
 	}
 	return finalDates
+}
+
+func findInDates(y int, m time.Month, listOfDates []YearMonth) bool {
+	for _, v := range listOfDates {
+		if v.Month == m && v.Year == y {
+			return true
+		}
+	}
+	return false
 }
