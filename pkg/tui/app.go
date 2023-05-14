@@ -4,6 +4,7 @@ import (
 	"budgettui/pkg/budget"
 	"budgettui/pkg/helper"
 	"fmt"
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -92,7 +93,7 @@ func CreateTopBar(ctx budget.Context) {
 	budgetName := tview.NewTextView().SetText(data.Budgets[data.CurrentBudgetID].Name)
 
 	dateForm := CreateChangeDateForm(ctx)
-	currentMonth := tview.NewButton(fmt.Sprintf("%v %v", ctx[helper.CurrentMonth].(*budget.YearMonth).Month, ctx[helper.CurrentMonth].(*budget.YearMonth).Year))
+	currentMonth := tview.NewButton(fmt.Sprintf("%v %v", data.Budgets[data.CurrentBudgetID].CurrentMonth.Month, data.Budgets[data.CurrentBudgetID].CurrentMonth.Year))
 	currentMonth.SetSelectedFunc(func() {
 		pages.AddPage("dateForm", tview.NewGrid().
 			SetColumns(0, 30, 0).
@@ -111,7 +112,9 @@ func CreateTopBar(ctx budget.Context) {
 
 func CreateChangeDateForm(ctx budget.Context) *tview.Form {
 	pages := ctx[helper.Pages].(*tview.Pages)
+	data := ctx[helper.Data].(*budget.Data)
 	form := tview.NewForm()
+	form.SetBorder(true)
 	datesList := ctx[helper.Data].(*budget.Data).GetMonths()
 	var formOptions []string
 
@@ -120,11 +123,22 @@ func CreateChangeDateForm(ctx budget.Context) *tview.Form {
 		formOptions = append(formOptions, stringOption)
 	}
 	form.AddDropDown("Date", formOptions, 0, nil)
-	chosen, _ := form.GetFormItemByLabel("Date").(*tview.DropDown).GetCurrentOption()
-	form.AddButton("save", func() {
-		ctx[helper.CurrentMonth] = datesList[chosen]
-		pages.HidePage("dateForm")
 
+	form.AddButton("save", func() {
+		chosen, _ := form.GetFormItemByLabel("Date").(*tview.DropDown).GetCurrentOption()
+		data.Budgets[data.CurrentBudgetID].CurrentMonth = datesList[chosen]
+		_ = data.SaveFile()
+		LoadAppElements(ctx)
+		pages.HidePage("dateForm")
+		pages.ShowPage("main")
+	})
+
+	form.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		if event.Key() == tcell.KeyEscape {
+			pages.HidePage("dateForm")
+			pages.ShowPage("main")
+		}
+		return event
 	})
 
 	return form

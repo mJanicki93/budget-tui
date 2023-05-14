@@ -7,6 +7,7 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -23,6 +24,8 @@ func GetNewTransactionForm(accountID uint, pageName string, income bool, ctx bud
 		return accountNamesList
 	}
 
+	currentDate := time.Now().Format(time.DateOnly)
+
 	form := tview.NewForm().
 		AddInputField(helper.Description, "", 20, nil, nil).
 		AddDropDown(helper.Category, data.Budgets[data.CurrentBudgetID].Categories, 0, nil).
@@ -35,6 +38,33 @@ func GetNewTransactionForm(accountID uint, pageName string, income bool, ctx bud
 				return false
 			}
 			return true
+		}, nil).
+		AddInputField("Date", currentDate, 20, func(textToCheck string, lastChar rune) bool {
+			converted := strings.Split(textToCheck, "")
+			for i, v := range converted {
+				if i == 0 || i == 1 || i == 2 || i == 3 || i == 5 || i == 6 || i == 8 || i == 9 {
+					_, err := strconv.Atoi(v)
+					if err != nil {
+						return false
+					}
+				}
+				if i == 4 || i == 7 {
+					if v != "-" {
+						return false
+					}
+				}
+			}
+			if len(textToCheck) == 10 {
+				_, err := time.Parse(time.DateOnly, textToCheck)
+				if err != nil {
+					return false
+				}
+			}
+			if len(textToCheck) > 10 {
+				return false
+			}
+			return true
+
 		}, nil).
 		AddDropDown(helper.Account, accountNames(), int(accountID), nil)
 
@@ -50,6 +80,8 @@ func GetNewTransactionForm(accountID uint, pageName string, income bool, ctx bud
 		description := form.GetFormItemByLabel(helper.Description).(*tview.InputField).GetText()
 		_, category := form.GetFormItemByLabel(helper.Category).(*tview.DropDown).GetCurrentOption()
 		i, _ := form.GetFormItemByLabel(helper.Account).(*tview.DropDown).GetCurrentOption()
+		date := form.GetFormItemByLabel("Date").(*tview.InputField).GetText()
+		timeDate, _ := time.Parse(time.DateOnly, date)
 
 		if description != "" && form.GetFormItemByLabel(helper.Amount).(*tview.InputField).GetText() != "" {
 			//Add budget entity
@@ -59,14 +91,14 @@ func GetNewTransactionForm(accountID uint, pageName string, income bool, ctx bud
 					Description: description,
 					Amount:      amount,
 					Category:    category,
-					Date:        time.Now(),
+					Date:        timeDate,
 				}
 			} else {
 				transaction = budget.Expanse{
 					Description: description,
 					Amount:      amount,
 					Category:    category,
-					Date:        time.Now(),
+					Date:        timeDate,
 				}
 			}
 
@@ -177,6 +209,8 @@ func GetTransferForm(ctx budget.Context) *tview.Form {
 	data := ctx[helper.Data].(*budget.Data)
 	pages := ctx[helper.Pages].(*tview.Pages)
 
+	currentDate := time.Now().Format(time.DateOnly)
+
 	accountNames := func() []string {
 		var accountNamesList []string
 		for _, account := range data.Budgets[data.CurrentBudgetID].Accounts {
@@ -198,6 +232,33 @@ func GetTransferForm(ctx budget.Context) *tview.Form {
 			}
 			return true
 		}, nil).
+		AddInputField("Date", currentDate, 20, func(textToCheck string, lastChar rune) bool {
+			converted := strings.Split(textToCheck, "")
+			for i, v := range converted {
+				if i == 0 || i == 1 || i == 2 || i == 3 || i == 5 || i == 6 || i == 8 || i == 9 {
+					_, err := strconv.Atoi(v)
+					if err != nil {
+						return false
+					}
+				}
+				if i == 4 || i == 7 {
+					if v != "-" {
+						return false
+					}
+				}
+			}
+			if len(textToCheck) == 10 {
+				_, err := time.Parse(time.DateOnly, textToCheck)
+				if err != nil {
+					return false
+				}
+			}
+			if len(textToCheck) > 10 {
+				return false
+			}
+			return true
+
+		}, nil).
 		AddDropDown("From", accountNames(), 0, nil).
 		AddDropDown("To", accountNames(), 0, nil)
 
@@ -209,20 +270,22 @@ func GetTransferForm(ctx budget.Context) *tview.Form {
 		_, category := form.GetFormItemByLabel(helper.Category).(*tview.DropDown).GetCurrentOption()
 		fromID, fromName := form.GetFormItemByLabel("From").(*tview.DropDown).GetCurrentOption()
 		toID, toName := form.GetFormItemByLabel("To").(*tview.DropDown).GetCurrentOption()
+		date := form.GetFormItemByLabel("Date").(*tview.InputField).GetText()
+		timeDate, _ := time.Parse(time.DateOnly, date)
 
 		if description != "" && form.GetFormItemByLabel(helper.Amount).(*tview.InputField).GetText() != "" && fromID != toID {
 			expanse := budget.Expanse{
 				Description: fmt.Sprintf("%s (%s)", description, toName),
 				Amount:      amount,
 				Category:    category,
-				Date:        time.Now(),
+				Date:        timeDate,
 			}
 
 			income := budget.Income{
 				Description: fmt.Sprintf("%s (%s)", description, fromName),
 				Amount:      amount,
 				Category:    category,
-				Date:        time.Now(),
+				Date:        timeDate,
 			}
 
 			budget.CommitTransaction(expanse, uint(fromID), ctx)
@@ -276,6 +339,33 @@ func GetTransactionForm(accountID uint, transactionID uint, pageName string, ctx
 				return false
 			}
 			return true
+		}, nil).
+		AddInputField("Date", currentTransaction.Date.Format(time.DateOnly), 20, func(textToCheck string, lastChar rune) bool {
+			converted := strings.Split(textToCheck, "")
+			for i, v := range converted {
+				if i == 0 || i == 1 || i == 2 || i == 3 || i == 5 || i == 6 || i == 8 || i == 9 {
+					_, err := strconv.Atoi(v)
+					if err != nil {
+						return false
+					}
+				}
+				if i == 4 || i == 7 {
+					if v != "-" {
+						return false
+					}
+				}
+			}
+			if len(textToCheck) == 10 {
+				_, err := time.Parse(time.DateOnly, textToCheck)
+				if err != nil {
+					return false
+				}
+			}
+			if len(textToCheck) > 10 {
+				return false
+			}
+			return true
+
 		}, nil)
 
 	form.SetBorder(true).SetTitle("Outcome").SetTitleAlign(tview.AlignLeft).SetBorderColor(tcell.ColorDarkRed)
@@ -284,6 +374,8 @@ func GetTransactionForm(accountID uint, transactionID uint, pageName string, ctx
 		amount, _ := strconv.ParseFloat(form.GetFormItemByLabel(helper.Amount).(*tview.InputField).GetText(), 64)
 		description := form.GetFormItemByLabel(helper.Description).(*tview.InputField).GetText()
 		_, category := form.GetFormItemByLabel(helper.Category).(*tview.DropDown).GetCurrentOption()
+		date := form.GetFormItemByLabel("Date").(*tview.InputField).GetText()
+		timeDate, _ := time.Parse(time.DateOnly, date)
 
 		if description != "" && form.GetFormItemByLabel(helper.Amount).(*tview.InputField).GetText() != "" {
 			//Add budget entity
@@ -291,6 +383,7 @@ func GetTransactionForm(accountID uint, transactionID uint, pageName string, ctx
 				ID:          uint(transactionID),
 				Description: description,
 				Amount:      amount,
+				Date:        timeDate,
 				Category:    category,
 			}
 			budget.EditTransaction(uint(accountID), newTransaction, ctx)

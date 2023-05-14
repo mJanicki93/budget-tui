@@ -25,8 +25,7 @@ func CommitTransaction(t Transaction, id uint, ctx Context) {
 
 func EditTransaction(accountID uint, newT TransactionEntity, ctx Context) {
 	data := ctx[helper.Data].(*Data)
-	oldDate := data.Budgets[data.CurrentBudgetID].Accounts[accountID].Transactions[newT.ID].Date
 	data.Budgets[data.CurrentBudgetID].Accounts[accountID].Transactions[newT.ID] = newT
-	data.Budgets[data.CurrentBudgetID].Accounts[accountID].Transactions[newT.ID].Date = oldDate
+	data.Budgets[data.CurrentBudgetID].Accounts[accountID].Transactions[newT.ID].Date = newT.Date
 	_ = data.SaveFile()
 }

@@ -101,9 +101,18 @@ func LoadJSONData() *Data {
 
 func (d *Data) GetMonths() []YearMonth {
 	accounts := d.Budgets[d.CurrentBudgetID].Accounts
-
 	var finalDates []YearMonth
 	var currentMonth YearMonth
+
+	startYear, startMonth, startDay := d.Budgets[d.CurrentBudgetID].CreatedAt.Date()
+
+	if startDay > int(d.Budgets[d.CurrentBudgetID].Settings.FirstDay) {
+		finalDates = append(finalDates, YearMonth{Year: startYear, Month: startMonth})
+	} else {
+		newStartYear, newStartMonth, _ := d.Budgets[d.CurrentBudgetID].CreatedAt.Add(-(10 * 24 * time.Hour)).Date()
+		finalDates = append(finalDates, YearMonth{Year: newStartYear, Month: newStartMonth})
+	}
+
 	for _, account := range accounts {
 		for _, t := range account.Transactions {
 			y, m, d := t.Date.Date()
@@ -112,9 +121,8 @@ func (d *Data) GetMonths() []YearMonth {
 				if !found {
 					finalDates = append(finalDates, YearMonth{Year: y, Month: m})
 				}
-
 			} else {
-				currentYear, lastMonth, _ := time.Now().Add(-(10 * 24 * time.Hour)).Date()
+				currentYear, lastMonth, _ := t.Date.Add(-(10 * 24 * time.Hour)).Date()
 				currentMonth = YearMonth{Year: currentYear, Month: lastMonth}
 				for _, v := range finalDates {
 					if v.Month == lastMonth && v.Year == currentYear {

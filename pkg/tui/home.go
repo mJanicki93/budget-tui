@@ -14,12 +14,11 @@ func Home() {
 	data := budget.LoadJSONData()
 	y, m, d := time.Now().Date()
 
-	var currentMonth *budget.YearMonth
 	if d > int(data.Budgets[data.CurrentBudgetID].Settings.FirstDay) {
-		currentMonth = &budget.YearMonth{Year: y, Month: m}
+		data.Budgets[data.CurrentBudgetID].CurrentMonth = budget.YearMonth{Year: y, Month: m}
 	} else {
 		currentYear, lastMonth, _ := time.Now().Add(-(10 * 24 * time.Hour)).Date()
-		currentMonth = &budget.YearMonth{Year: currentYear, Month: lastMonth}
+		data.Budgets[data.CurrentBudgetID].CurrentMonth = budget.YearMonth{Year: currentYear, Month: lastMonth}
 	}
 
 	//Creating all views
@@ -40,7 +39,6 @@ func Home() {
 	ctx.AddMap(map[string]any{
 		helper.App:              app,
 		helper.Data:             data,
-		helper.CurrentMonth:     currentMonth,
 		helper.Pages:            pages,
 		helper.Menu:             menu,
 		helper.TopBar:           topBar,
